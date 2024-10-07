@@ -44,20 +44,22 @@ pipeline {
                             }
                         }
 
-          stage('SonarQube Code Analysis') {
-              steps {
-                  script {
-                      // SonarQube code quality analysis using Maven
-                      withSonarQubeEnv(SONARQUBE_SERVER) {
-                          sh """
-                          mvn sonar:sonar \
-                            -Dsonar.projectKey=trainee-management \
-                            -Dsonar.login=${SONAR_TOKEN}
-                          """
-                      }
-                  }
-              }
-          }
+stage('SonarQube Code Analysis') {
+    steps {
+        script {
+            // Use Jenkins credentials to retrieve the SonarQube token
+            withSonarQubeEnv('SonarQube') {  // Ensure 'SonarQube' is the correct server name configured in Jenkins
+                withCredentials([string(credentialsId: 'sona', variable: 'SONAR_TOKEN')]) {
+                    sh """
+                    mvn sonar:sonar \
+                      -Dsonar.projectKey=trainee-management \
+                      -Dsonar.login=$SONAR_TOKEN
+                    """
+                }
+            }
+        }
+    }
+}
 
 
 
