@@ -48,13 +48,13 @@ pipeline {
                 script {
                     // SonarQube code quality analysis
                     withSonarQubeEnv(SONARQUBE_SERVER) {
-                    tool name: 'SonarQube', type: 'SonarQubeScanner'
-                        sh '''
-                        sonar-scanner \
+                        def scannerHome = tool 'SonarScanner' // Store the path to the SonarQube scanner tool
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
                           -Dsonar.projectKey=trainee-management \
                           -Dsonar.sources=src \
                           -Dsonar.login=$SONAR_TOKEN
-                        '''
+                        """
                     }
                 }
             }
