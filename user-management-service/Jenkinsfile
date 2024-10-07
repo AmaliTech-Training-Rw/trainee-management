@@ -49,7 +49,7 @@ pipeline {
                         script {
                             // SonarQube code quality analysis
                             withSonarQubeEnv(SONARQUBE_SERVER) {
-                            tool name: 'SonarQube', type: 'SonarQubeScanner'
+                            def scannerHome = tool 'SonarScanner'
                                 sh '''
                                 sonar-scanner \
                                   -Dsonar.projectKey=trainee-management \
