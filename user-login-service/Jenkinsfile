@@ -18,7 +18,35 @@ pipeline {
                 git url: 'https://github.com/Magnifique67/trainee-management.git', branch: 'develop', credentialsId: GIT_CREDENTIALS
             }
         }
+               stage('Test') {
+                    steps {
+                        script {
+                            // Run tests
+                            try {
+                                echo "Running tests..."
+                                sh 'mvn test'
+                            } catch (Exception e) {
+                                error "Tests failed: ${e.message}"
+                            }
+                        }
+                    }
+                }
 
+        stage('SonarQube Code Analysis') {
+            steps {
+                script {
+                    // SonarQube code quality analysis
+                    withSonarQubeEnv(SONARQUBE_SERVER) {
+                        sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=trainee-management \
+                          -Dsonar.sources=src \
+                          -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
         stage('Build Docker Image') {
             steps {
                 script {
@@ -38,34 +66,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Run Tests') {
-            steps {
-                script {
-                    // Run tests inside the Docker container
-                    docker.image("user-login-service:${DOCKER_IMAGE_TAG}").inside {
-                        sh './gradlew test'
-                    }
-                }
-            }
-        }
-
-        stage('SonarQube Code Analysis') {
-            steps {
-                script {
-                    // Perform SonarQube analysis
-                    withSonarQubeEnv(SONARQUBE_SERVER) {
-                        sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=user-login \
-                          -Dsonar.sources=src \
-                          -Dsonar.login=$SONAR_TOKEN
-                        '''
-                    }
-                }
-            }
-        }
-
         stage('Deploy to Kubernetes') {
             steps {
                 script {
