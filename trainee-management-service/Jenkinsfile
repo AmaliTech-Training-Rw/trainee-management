@@ -17,20 +17,32 @@ pipeline {
                 git url: 'https://github.com/Magnifique67/trainee-management.git', branch: 'develop', credentialsId: GIT_CREDENTIALS
             }
         }
-               stage('Test') {
+               stage('Build') {
                     steps {
                         script {
                             // Run tests
                             try {
                                 echo "Running tests..."
-                                sh 'mvn test'
+                                sh './mvn clean package'
                             } catch (Exception e) {
                                 error "Tests failed: ${e.message}"
                             }
                         }
                     }
                 }
-
+       stage('Test') {
+            steps {
+                script {
+                    // Run tests
+                    try {
+                        echo "Running tests..."
+                        sh 'mvn test'
+                    } catch (Exception e) {
+                        error "Tests failed: ${e.message}"
+                    }
+                }
+            }
+        }
         stage('SonarQube Code Analysis') {
             steps {
                 script {
