@@ -45,16 +45,19 @@ pipeline {
                         }
 
 stage('SonarQube Code Analysis') {
-    steps {
-        script {
-            // Use Jenkins credentials to retrieve the SonarQube token
-            withSonarQubeEnv('SonarQube') {  // Ensure 'SonarQube' is the correct server name configured in Jenkins
-                withCredentials([string(credentialsId: 'sona', variable: 'SONAR_TOKEN')]) {
-                    sh """
-                    mvn sonar:sonar \
-                      -Dsonar.projectKey=trainee-management \
-                      -Dsonar.login=$SONAR_TOKEN
-                    """
+            steps {
+                script {
+                    // Use Jenkins credentials to retrieve the SonarQube token
+                    withSonarQubeEnv('SonarQube') {
+                        withCredentials([string(credentialsId: 'sona', variable: 'SONAR_TOKEN')]) {
+                            // Using double quotes to allow variable substitution
+                            sh """
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=trainee-management \
+                              -Dsonar.login=${SONAR_TOKEN}
+                            """
+                        }
+                    }
                 }
             }
         }
