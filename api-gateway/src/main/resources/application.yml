@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: trainee-management-service
+          uri: lb://trainee-management-service  # Load balanced service URI
+          predicates:
+            - Path=/trainees/**  # Route for trainee management
+
+        - id: user-management-service
+          uri: lb://user-management-service  # Load balanced service URI
+          predicates:
+            - Path=/users/**  # Route for user creation
+
+        - id: user-login-service
+          uri: lb://user-login-service  # Load balanced service URI
+          predicates:
+            - Path=/login/**  # Route for user login
+
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka/  # Point to Eureka server
+      instance:
+        prefer-ip-address: true
+        lease-renewal-interval-in-seconds: 30
+        lease-expiration-duration-in-seconds: 90
+
+server:
+  port: 8093  # API Gateway listens on port 8093
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG  # Log level for Spring Cloud Gateway
