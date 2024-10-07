@@ -23,7 +23,7 @@ pipeline {
                                     // Run tests
                                     try {
                                         echo "Running tests..."
-                                        sh 'mvn clean package'
+                                        sh 'mvn clean package -pl user-management-service'
                                     } catch (Exception e) {
                                         error "Tests failed: ${e.message}"
                                     }
@@ -36,7 +36,7 @@ pipeline {
                                     // Run tests
                                     try {
                                         echo "Running tests..."
-                                        sh 'mvn test'
+                                        sh 'mvn test -pl user-management-service'
                                     } catch (Exception e) {
                                         error "Tests failed: ${e.message}"
                                     }
