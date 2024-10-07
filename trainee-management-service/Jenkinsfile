@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     // Build Docker image using Dockerfile
-                    docker.build("trainee-management-service:${DOCKER_IMAGE_TAG}", '.')
+                    docker.build("trainee-management-service:${DOCKER_IMAGE_TAG}", '-f trainee-management-service/Dockerfile .')
                 }
             }
         }
