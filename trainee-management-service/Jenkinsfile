@@ -48,6 +48,7 @@ pipeline {
                 script {
                     // SonarQube code quality analysis
                     withSonarQubeEnv(SONARQUBE_SERVER) {
+                    tool name: 'SonarQube', type: 'SonarQubeScanner
                         sh '''
                         sonar-scanner \
                           -Dsonar.projectKey=trainee-management \
