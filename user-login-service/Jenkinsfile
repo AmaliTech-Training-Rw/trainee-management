@@ -24,7 +24,7 @@ pipeline {
                                     // Run tests
                                     try {
                                         echo "Running tests..."
-                                        sh './mvn clean package'
+                                        sh 'mvn clean package'
                                     } catch (Exception e) {
                                         error "Tests failed: ${e.message}"
                                     }
