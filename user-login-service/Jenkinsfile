@@ -7,7 +7,7 @@ pipeline {
         SONARQUBE_SERVER = 'SonarQube'
         KUBECONFIG_CREDENTIALS = 'kubernets'
         SONAR_TOKEN = credentials('sona') // SonarQube token from Jenkins credentials
-        GIT_CREDENTIALS = credentials('	job1') // Git credentials from Jenkins credentials
+        GIT_CREDENTIALS = credentials('	job2') // Git credentials from Jenkins credentials
     }
 
 
