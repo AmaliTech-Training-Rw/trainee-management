@@ -44,22 +44,24 @@ pipeline {
                             }
                         }
 
-                stage('SonarQube Code Analysis') {
-                    steps {
-                        script {
-                            // SonarQube code quality analysis
-                            withSonarQubeEnv(SONARQUBE_SERVER) {
-                            def scannerHome = tool 'SonarScanner'
-                                sh '''
-                                sonar-scanner \
-                                  -Dsonar.projectKey=trainee-management \
-                                  -Dsonar.sources=src \
-                                  -Dsonar.login=$SONAR_TOKEN
-                                '''
-                            }
-                        }
-                    }
-                }
+          stage('SonarQube Code Analysis') {
+              steps {
+                  script {
+                      // SonarQube code quality analysis
+                      withSonarQubeEnv(SONARQUBE_SERVER) {
+                          def scannerHome = tool 'SonarScanner' // Store the path to SonarScanner
+                          sh """
+                          ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=trainee-management \
+                            -Dsonar.sources=src \
+                            -Dsonar.login=${env.SONAR_TOKEN}
+                          """
+                      }
+                  }
+              }
+          }
+
+
 
         stage('Build Docker Image') {
             steps {
