@@ -1,4 +1,4 @@
-package com.trainee_management.trainee_management_service.dto;
+package com.trainee_management.trainee_management_service.cohort.dto;
 
 
 

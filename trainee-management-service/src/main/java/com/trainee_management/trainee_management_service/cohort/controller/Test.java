@@ -1,4 +1,4 @@
-package com.trainee_management.trainee_management_service.controller;
+package com.trainee_management.trainee_management_service.cohort.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

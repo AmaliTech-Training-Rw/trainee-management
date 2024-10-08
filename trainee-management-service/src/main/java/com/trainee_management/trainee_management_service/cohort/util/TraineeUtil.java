@@ -1,4 +1,4 @@
-package com.trainee_management.trainee_management_service.util;
+package com.trainee_management.trainee_management_service.cohort.util;
 
 import java.util.ArrayList;
 import java.util.List;

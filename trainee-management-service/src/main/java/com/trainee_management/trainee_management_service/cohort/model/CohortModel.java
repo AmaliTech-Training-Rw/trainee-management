@@ -1,4 +1,4 @@
-package com.trainee_management.trainee_management_service.model;
+package com.trainee_management.trainee_management_service.cohort.model;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
