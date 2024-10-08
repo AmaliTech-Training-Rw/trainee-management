@@ -1,10 +1,10 @@
 # Configuration for the Eureka server
 spring:
   application:
-    name: server
+    name: eureka-server
 
 server:
-  port: 8761
+  port: 8761  # Eureka server listens on port 8761
 
 eureka:
   client:
@@ -13,10 +13,11 @@ eureka:
 
 logging:
   level:
-    com.netflix.eureka: DEBUG   # Temporarily set to DEBUG for troubleshooting
-    com.netflix.discovery: DEBUG  # Temporarily set to DEBUG for troubleshooting
+    com.netflix.eureka: DEBUG     # Temporarily set to DEBUG for troubleshooting
+    com.netflix.discovery: DEBUG    # Temporarily set to DEBUG for troubleshooting
 
 ---
+
 # Configuration for Service A (Trainee Management Service)
 spring:
   config:
@@ -39,6 +40,7 @@ eureka:
       lease-expiration-duration-in-seconds: 90      # Expiration time
 
 ---
+
 # Configuration for Service C (User Management Service)
 spring:
   config:
@@ -61,6 +63,7 @@ eureka:
       lease-expiration-duration-in-seconds: 90
 
 ---
+
 # Configuration for Service D (User Login Service)
 spring:
   config:
@@ -83,6 +86,7 @@ eureka:
       lease-expiration-duration-in-seconds: 90
 
 ---
+
 # Configuration for API Gateway
 spring:
   config:
@@ -105,6 +109,7 @@ eureka:
       lease-expiration-duration-in-seconds: 90
 
 ---
+
 # Configuration for Kafka Producer
 spring:
   config:
@@ -127,6 +132,7 @@ eureka:
       lease-expiration-duration-in-seconds: 90
 
 ---
+
 # Configuration for Kafka Consumer
 spring:
   config:
