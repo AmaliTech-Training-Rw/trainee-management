@@ -48,10 +48,11 @@ pipeline {
             steps {
                 script {
                     // Build Docker image using Dockerfile
-                    docker.build("trainee-management-service:${DOCKER_IMAGE_TAG}", '-f trainee-management-service/Dockerfile .')
+                    docker.build("trainee-management-service:${DOCKER_IMAGE_TAG}", "-f trainee-management-service/Dockerfile trainee-management-service")
                 }
             }
         }
+
 
         stage('Push Docker Image') {
             steps {
