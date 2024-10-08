@@ -26,8 +26,14 @@ public class TraineeService {
     private SpecializationRepository specializationRepository; // Add this line
 
     // Create a new Trainee
+
     @Transactional
     public Trainee createTrainee(Trainee trainee) {
+        // Check if the trainee has an ongoing specialization
+        if (trainee.getProgressionStatus() == Trainee.ProgressionStatus.IN_PROGRESS) {
+            throw new RuntimeException("Trainee cannot enroll in another specialization while one is ongoing.");
+        }
+
         // Check if Cohort is provided and exists
         if (trainee.getCohort() != null) {
             Cohort cohort = cohortRepository.findById(trainee.getCohort().getCohortId())
@@ -45,6 +51,7 @@ public class TraineeService {
         return traineeRepository.save(trainee);
     }
 
+
     // Get a Trainee by ID
     public Trainee getTraineeById(Long traineeId) {
         return traineeRepository.findById(traineeId)
@@ -61,6 +68,11 @@ public class TraineeService {
     public Trainee updateTrainee(Long traineeId, Trainee traineeDetails) {
         Trainee trainee = traineeRepository.findById(traineeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee not found with id " + traineeId));
+
+        // Prevent changing specialization if the trainee has an ongoing one
+        if (trainee.getProgressionStatus() == Trainee.ProgressionStatus.IN_PROGRESS) {
+            throw new RuntimeException("Trainee cannot change specialization while one is ongoing.");
+        }
 
         // Allow specialization change if the trainee has completed their previous specialization
         if (trainee.getProgressionStatus() == Trainee.ProgressionStatus.COMPLETED) {
@@ -89,6 +101,7 @@ public class TraineeService {
 
         return traineeRepository.save(trainee);
     }
+
 
     // Delete a Trainee
     @Transactional
