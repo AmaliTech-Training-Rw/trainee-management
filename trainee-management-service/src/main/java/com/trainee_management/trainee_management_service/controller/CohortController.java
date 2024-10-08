@@ -1,5 +1,7 @@
 package com.trainee_management.trainee_management_service.controller;
 
+
+import com.trainee_management.trainee_management_service.dto.AssignTraineesRequest;
 import com.trainee_management.trainee_management_service.model.CohortModel;
 import com.trainee_management.trainee_management_service.service.CohortService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +44,17 @@ public class CohortController {
     @DeleteMapping("/{id}")
     public void deleteCohort(@PathVariable Long id) {
         cohortService.deleteCohort(id);
+    }
+
+    // Assign trainees to a cohort
+    @PostMapping("/{id}/assign-trainees")
+    public CohortModel assignTraineesToCohort(@PathVariable Long id, @RequestBody AssignTraineesRequest request) {
+        return cohortService.assignTraineesToCohort(id, request.getTrainees());
+    }
+
+    // Delete a trainee from a cohort
+    @DeleteMapping("/{id}/remove-trainees")
+    public CohortModel removeTraineeFromCohort(@PathVariable Long id, @RequestBody String traineeId) {
+        return cohortService.removeTraineeFromCohort(id, traineeId);
     }
 }
