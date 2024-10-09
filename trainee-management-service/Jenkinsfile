@@ -1,0 +1,92 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE_TAG = "latest"
+        DOCKER_CREDENTIALS = 'kety' // DockerHub credentials ID in Jenkins
+        SONARQUBE_SERVER = 'SonarQube' // SonarQube server ID in Jenkins
+        KUBECONFIG_CREDENTIALS = 'kubernets' // Kubernetes credentials ID in Jenkins
+        SONAR_TOKEN = credentials('sona') // SonarQube token from Jenkins credentials
+        GIT_CREDENTIALS = credentials('job2') // Git credentials from Jenkins credentials
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Use Git credentials to clone the repository
+                git url: 'https://github.com/Magnifique67/trainee-management.git', branch: 'develop', credentialsId: GIT_CREDENTIALS
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    // Run tests and build the JAR
+                    try {
+                        echo "Building the application..."
+                        sh 'mvn clean package -pl trainee-management-service'
+                    } catch (Exception e) {
+                        error "Build failed: ${e.message}"
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    // Run tests
+                    try {
+                        echo "Running tests..."
+                        sh 'mvn test -pl trainee-management-service'
+                    } catch (Exception e) {
+                        error "Tests failed: ${e.message}"
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build Docker image using Dockerfile
+                    docker.build("trainee-management-service:${DOCKER_IMAGE_TAG}", "-f trainee-management-service/Dockerfile .")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Push the built Docker image to DockerHub
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        docker.image("trainee-management-service:${DOCKER_IMAGE_TAG}").push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Deploy the application to Kubernetes using the Kubeconfig file
+                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS, variable: 'KUBECONFIG')]) {
+                        sh 'kubectl apply -f k8s/trainee-management-deployment.yml'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished for Trainee Management Service.'
+        }
+        success {
+            echo 'Deployment successful for Trainee Management Service.'
+        }
+        failure {
+            echo 'Pipeline failed for Trainee Management Service.'
+        }
+    }
+}
