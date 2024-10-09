@@ -17,6 +17,7 @@ public class CohortModel {
     private Date startDate;
     private Date endDate;
     private String location;
+    private String description;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> specializations;
@@ -63,6 +64,14 @@ public class CohortModel {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<String> getSpecializations() {

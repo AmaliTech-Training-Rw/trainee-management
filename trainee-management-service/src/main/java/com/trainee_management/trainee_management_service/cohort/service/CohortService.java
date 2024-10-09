@@ -37,6 +37,7 @@ public class CohortService {
         existingCohort.setStartDate(updatedCohort.getStartDate());
         existingCohort.setEndDate(updatedCohort.getEndDate());
         existingCohort.setLocation(updatedCohort.getLocation());
+        existingCohort.setDescription(updatedCohort.getDescription());
         existingCohort.setSpecializations(updatedCohort.getSpecializations());
         CohortModel savedCohort = cohortRepository.save(existingCohort);
         return new ResponseEntity<>(savedCohort, HttpStatus.OK);
