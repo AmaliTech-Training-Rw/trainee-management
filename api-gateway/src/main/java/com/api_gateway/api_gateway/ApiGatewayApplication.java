@@ -26,6 +26,7 @@ public class ApiGatewayApplication {
 				.route(r -> r.path("/trainees/v3/api-docs").and().method(HttpMethod.GET).uri("lb://trainee-management-service"))
 				.route(r -> r.path("/users/v3/api-docs").and().method(HttpMethod.GET).uri("lb://user-management-service"))
 				.route(r -> r.path("/login/v3/api-docs").and().method(HttpMethod.GET).uri("lb://user-login-service"))
+				.route(r -> r.path("/assessment/v3/api-docs").and().method(HttpMethod.GET).uri("lb://assessment-management-service"))
 				.build();
 	}
 

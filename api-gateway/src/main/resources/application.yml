@@ -30,6 +30,12 @@ spring:
           predicates:
             - Path=/login/**
 
+        # Route to Assessment Management Service
+        - id: assessment-management-service
+          uri: lb://assessment-management-service
+          predicates:
+            - Path=/assessment/**
+
   # Eureka Client Configuration
   eureka:
     client:
@@ -68,3 +74,9 @@ springdoc:
         name: User Management Service
       - url: /login/v3/api-docs
         name: User Login Service
+      - url: /assessment/v3/api-docs
+        name: Assessment Management Service
+
+
+
+
