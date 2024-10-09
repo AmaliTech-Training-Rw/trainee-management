@@ -87,6 +87,31 @@ eureka:
 
 ---
 
+---
+
+# Configuration for Service F (Email Management Service)
+spring:
+  config:
+    activate:
+      on-profile: email-management-service
+
+  application:
+    name: email-management-service
+
+server:
+  port: 8086  # Service F listens on port 8086
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
+
+---
+
 # Configuration for API Gateway
 spring:
   config:

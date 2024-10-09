@@ -30,6 +30,13 @@ spring:
           predicates:
             - Path=/login/**
 
+        # Route to Email Management Service
+        - id: Email-management-service
+          uri: lb://Email-management-service
+          predicates:
+            - Path=/email/**
+
+
   # Eureka Client Configuration
   eureka:
     client:
@@ -68,3 +75,5 @@ springdoc:
         name: User Management Service
       - url: /login/v3/api-docs
         name: User Login Service
+      - url: /email/v3/api-docs
+        name: Email Management Service
