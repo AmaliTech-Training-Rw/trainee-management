@@ -25,3 +25,4 @@ kafka:
     group-id: consumer-group  # Set a consumer group ID
     key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    max-partition-fetch-bytes: 200000000  # 200 MB
