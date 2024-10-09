@@ -24,3 +24,4 @@ kafka:
   producer:
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
     value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    max-partition-fetch-bytes: 200000000  # 200 MB
