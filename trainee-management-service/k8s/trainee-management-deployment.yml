@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trainee-management-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: trainee-management
+  template:
+    metadata:
+      labels:
+        app: trainee-management
+    spec:
+      containers:
+        - name: trainee-management
+          image: your-docker-repo/trainee-management-service:latest
+          ports:
+            - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trainee-management-service
+spec:
+  selector:
+    app: trainee-management
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8081
+  type: LoadBalancer

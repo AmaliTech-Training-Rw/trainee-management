@@ -1,0 +1,92 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE_TAG = "latest"
+        DOCKER_CREDENTIALS = 'kety' // Your Docker credentials ID
+        SONARQUBE_SERVER = 'SonarQube'
+        KUBECONFIG_CREDENTIALS = 'kubernets'
+        SONAR_TOKEN = credentials('sona') // SonarQube token from Jenkins credentials
+        GIT_CREDENTIALS = credentials('	job2') // Git credentials from Jenkins credentials
+    }
+
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Use Git credentials for cloning the repository
+                git url: 'https://github.com/Magnifique67/trainee-management.git', branch: 'develop', credentialsId: GIT_CREDENTIALS
+            }
+        }
+                       stage('Build') {
+                            steps {
+                                script {
+                                    // Run tests
+                                    try {
+                                        echo "Running tests..."
+                                        sh 'mvn clean package -pl user-management-service'
+                                    } catch (Exception e) {
+                                        error "Tests failed: ${e.message}"
+                                    }
+                                }
+                            }
+                        }
+                       stage('Test') {
+                            steps {
+                                script {
+                                    // Run tests
+                                    try {
+                                        echo "Running tests..."
+                                        sh 'mvn test -pl user-management-service'
+                                    } catch (Exception e) {
+                                        error "Tests failed: ${e.message}"
+                                    }
+                                }
+                            }
+                        }
+
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image for user-management-service
+                    docker.build("user-management-service:${DOCKER_IMAGE_TAG}", '.')
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        // Push the Docker image for user-management-service
+                        docker.image("user-management-service:${DOCKER_IMAGE_TAG}").push()
+                    }
+                }
+            }
+        }
+
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Apply Kubernetes configuration
+                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS, variable: 'KUBECONFIG')]) {
+                        sh 'kubectl apply -f k8s/user-management-deployment.yml'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished for User Management Service.'
+        }
+        success {
+            echo 'Deployment successful for User Management Service.'
+        }
+        failure {
+            echo 'Pipeline failed for User Management Service.'
+        }
+    }
+}
