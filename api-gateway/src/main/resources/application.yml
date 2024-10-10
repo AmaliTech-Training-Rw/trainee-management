@@ -2,8 +2,6 @@
 spring:
   application:
     name: api-gateway
-  main:
-    web-application-type: reactive
 
   # Cloud Gateway Configuration
   cloud:
@@ -24,15 +22,9 @@ spring:
           predicates:
             - Path=/users/**
 
-        # Route to User Login Service
-        - id: user-login-service
-          uri: lb://user-login-service
-          predicates:
-            - Path=/login/**
-
         # Route to Email Management Service
-        - id: Email-management-service
-          uri: lb://Email-management-service
+        - id: email-management-service
+          uri: lb://email
           predicates:
             - Path=/email/**
 
@@ -73,7 +65,5 @@ springdoc:
         name: Trainee Management Service
       - url: /users/v3/api-docs
         name: User Management Service
-      - url: /login/v3/api-docs
-        name: User Login Service
       - url: /email/v3/api-docs
         name: Email Management Service

@@ -11,15 +11,9 @@ import lombok.Setter;
 
 import java.util.Set;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Entity
-public class Role {
-    @Id
-    @GeneratedValue
-    private Integer id;
-    private String name;
-    private String description;
+
+public enum Role {
+    ADMIN,
+    TRAINEE,
+    TRAINER
 }
