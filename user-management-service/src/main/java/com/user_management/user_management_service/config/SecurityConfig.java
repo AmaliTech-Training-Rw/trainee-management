@@ -1,6 +1,5 @@
 package com.user_management.user_management_service.config;
 
-
 import com.user_management.user_management_service.filter.JwtAuthenticationFilter;
 import com.user_management.user_management_service.util.errorHandler.ForbiddenErrorHandler;
 import org.springframework.context.annotation.Bean;
@@ -33,22 +32,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf()
-                .disable()
-                .authorizeRequests()
-                .requestMatchers("/users/v3/api-docs,/users/swagger-ui.html","/webjars","/users/login","/users/OAuth2")
-                .permitAll()
-                .requestMatchers("/trainees/**","/users/**")
-                .authenticated()
+                .csrf().disable()
+                .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.POST, "/users/login").permitAll() // Ensure login is permitted
+                .requestMatchers("/users/v3/api-docs", "/users/swagger-ui.html", "/webjars/**", "/users/OAuth2", "/users/{id}/password").permitAll()
+                .requestMatchers("/trainees/**", "/users/**").hasAnyRole("ADMIN","TRAINER") // Allow ADMIN access
+                .anyRequest().authenticated()
                 .and()
-                .exceptionHandling()
-                .accessDeniedHandler(forbiddenErrorHandler)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .exceptionHandling().accessDeniedHandler(forbiddenErrorHandler) // Custom error handler for forbidden access
                 .and()
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .build(); // Ensure only one build() call
     }
 }

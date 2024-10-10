@@ -14,6 +14,6 @@ import java.util.Set;
 
 public enum Role {
     ADMIN,
-    TRAINEES,
+    TRAINEE,
     TRAINER
 }

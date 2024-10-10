@@ -5,20 +5,36 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class EmailService {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private JavaMailSender mailSender;
 
     // Method to send an email after registration
-    public void sendRegistrationEmail(String to, String userName) {
-        String subject = "Welcome to Our Service!";
-        String message = "Dear " + userName + ",\n\n" +
-                "Thank you for registering with us. We're excited to have you on board!\n" +
-                "Regards,\nYour Company";
+    public void sendRegistrationEmail(String to) {
+        Optional<User> optionalUser = userRepository.findByEmail(to); // Fetch the user by email
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            String subject = "Welcome to Our Service!";
+            String message = String.format("Dear %s,\n\n" +
+                            "Thank you for registering with us. We're excited to have you on board!\n" +
+                            "To create your new password, please use the following link:\n" +
+                            "http://yourdomain.com/newPassword?token=%s\n\n" +
+                            "Regards,\n" +
+                            "Your Company",
+                    user.getName(), user.getResetToken()); // Fetch name and token
 
-        sendEmail(to, subject, message);
+            sendEmail(to, subject, message); // Use existing method to send email
+        } else {
+            // Handle case where user is not found
+            System.out.println("User not found for email: " + to);
+        }
     }
 
     // Method to send an email for password reset

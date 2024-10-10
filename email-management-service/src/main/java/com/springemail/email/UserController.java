@@ -14,7 +14,7 @@ import java.util.UUID;
 // Other imports...
 
 @RestController
-@RequestMapping("/api/users") // Base URL for user-related endpoints
+@RequestMapping("/email") // Base URL for user-related endpoints
 public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -24,24 +24,17 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository; // Assuming you have a repository to handle User persistence
-
-    @PostMapping("/register")
+    @PostMapping("/sendActivationEmail")
     public String registerUser(@RequestBody User user) {
-        logger.info("Registering user: {}", user);
-
         try {
-            // Registration logic here (e.g., saving the user to the database)
-            userRepository.save(user); // Save user to database
-
-            // Send registration email
-            emailService.sendRegistrationEmail(user.getEmail(), user.getName());
-            return "User registered successfully!";
+            // Only pass the email to the email service method
+            emailService.sendRegistrationEmail(user.getEmail());
+            return "Email sent successfully!";
         } catch (Exception e) {
             logger.error("Error registering user: {}", e.getMessage());
             throw new RuntimeException("User registration failed: " + e.getMessage());
         }
     }
-
 
 
 

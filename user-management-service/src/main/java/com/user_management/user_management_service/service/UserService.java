@@ -1,43 +1,43 @@
 package com.user_management.user_management_service.service;
 
 import com.user_management.user_management_service.dto.UserRequest;
-import com.user_management.user_management_service.exception.UserNotFoundException;
 import com.user_management.user_management_service.exception.UserAlreadyExistsException;
+import com.user_management.user_management_service.exception.UserNotFoundException;
 import com.user_management.user_management_service.model.User;
 import com.user_management.user_management_service.repository.UserRepository;
+import com.user_management.user_management_service.helpers.EmailHelper; // Import EmailHelper
 import com.user_management.user_management_service.helpers.UserValidationHelper;
-import com.user_management.user_management_service.helpers.EmailService; // Assuming you have an EmailService for sending emails
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID; // For generating unique tokens
-import java.time.LocalDateTime; // For managing token expiration
+import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Service
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserValidationHelper userValidationHelper;
-    private final EmailService emailService; // Email service for sending emails
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       UserValidationHelper userValidationHelper,
-                       EmailService emailService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userValidationHelper = userValidationHelper;
-        this.emailService = emailService;
-    }
+    private UserValidationHelper userValidationHelper;
+    private AuthenticationManager authenticationManager;
+
+
+    @Autowired
+    private EmailHelper emailHelper; // Inject EmailHelper
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public User addUser(UserRequest userInfo) {
         try {
@@ -48,10 +48,10 @@ public class UserService {
                 throw new UserAlreadyExistsException("User already exists with email: " + userInfo.getEmail());
             }
 
-            // Create User object without password and set as inactive
             User user = new User();
             user.setName(userInfo.getName());
             user.setEmail(userInfo.getEmail());
+            user.setPassword(passwordEncoder.encode(userInfo.getPassword())); // Correctly encode and set the password
             user.setRole(userInfo.getRole());
 
             // Generate a reset token and set the expiration
@@ -62,10 +62,10 @@ public class UserService {
             // Save user to database
             User savedUser = userRepository.save(user);
 
-            // Send activation email
-            emailService.sendActivationEmail(savedUser.getEmail(), resetToken);
+            // Send activation email using EmailHelper
+            emailHelper.sendActivationEmail(savedUser, resetToken);
 
-            logger.info("User created and activation email sent: {}", savedUser.getEmail());
+            logger.info("User created: {}", savedUser.getEmail());
             return savedUser;
         } catch (UserAlreadyExistsException e) {
             logger.error("Error adding user: {}", e.getMessage());
@@ -75,6 +75,8 @@ public class UserService {
             throw new RuntimeException("An unexpected error occurred while adding the user.", e);
         }
     }
+
+
 
     public Optional<User> updateUser(int id, UserRequest userInfo) {
         try {
@@ -113,6 +115,9 @@ public class UserService {
         logger.info("Retrieving all users");
         return userRepository.findAll();
     }
+
+    // Private helper methods
+
 
     private void updateUserDetails(User user, UserRequest userInfo) {
         user.setName(userInfo.getName());

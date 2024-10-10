@@ -21,4 +21,5 @@ public class UserValidationHelper {
             throw new UserAlreadyExistsException("Email already exists.");
         }
     }
+
 }

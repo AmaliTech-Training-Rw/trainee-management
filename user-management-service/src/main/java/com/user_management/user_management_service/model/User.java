@@ -38,13 +38,15 @@ public class User implements UserDetails {
     // Return authorities based on the user's role
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));  // Convert Role enum to GrantedAuthority
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name())); // Ensure ROLE_ prefix
     }
+
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
