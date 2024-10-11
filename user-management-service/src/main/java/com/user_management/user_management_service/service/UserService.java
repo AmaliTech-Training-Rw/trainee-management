@@ -7,10 +7,12 @@ import com.user_management.user_management_service.model.User;
 import com.user_management.user_management_service.repository.UserRepository;
 import com.user_management.user_management_service.helpers.EmailHelper; // Import EmailHelper
 import com.user_management.user_management_service.helpers.UserValidationHelper;
+import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate; // Import KafkaTemplate
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,14 +32,18 @@ public class UserService {
 
     @Autowired
     private UserValidationHelper userValidationHelper;
-    private AuthenticationManager authenticationManager;
-
 
     @Autowired
-    private EmailHelper emailHelper; // Inject EmailHelper
+    private EmailHelper emailHelper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Value("${kafka.topic.user-created}")
+    private String userCreatedTopic;
 
     public User addUser(UserRequest userInfo) {
         try {
@@ -62,21 +68,24 @@ public class UserService {
             // Save user to database
             User savedUser = userRepository.save(user);
 
-            // Send activation email using EmailHelper
-            emailHelper.sendActivationEmail(savedUser, resetToken);
+            JSONObject messageJson = new JSONObject();
+            messageJson.put("email", savedUser.getEmail());
+            messageJson.put("name", savedUser.getName());
+            messageJson.put("token", resetToken);
 
+            kafkaTemplate.send(userCreatedTopic, messageJson.toString());
+
+            logger.info("User created: {}", savedUser.getEmail());
             logger.info("User created: {}", savedUser.getEmail());
             return savedUser;
         } catch (UserAlreadyExistsException e) {
             logger.error("Error adding user: {}", e.getMessage());
-            throw e; // Rethrow the exception for the controller to handle
+            throw e;
         } catch (Exception e) {
             logger.error("Unexpected error adding user: {}", e.getMessage());
             throw new RuntimeException("An unexpected error occurred while adding the user.", e);
         }
     }
-
-
 
     public Optional<User> updateUser(int id, UserRequest userInfo) {
         try {
@@ -86,7 +95,7 @@ public class UserService {
             return Optional.of(userRepository.save(user));
         } catch (UserNotFoundException e) {
             logger.error("Error updating user: {}", e.getMessage());
-            throw e; // Rethrow the exception for the controller to handle
+            throw e;
         } catch (Exception e) {
             logger.error("Unexpected error updating user: {}", e.getMessage());
             throw new RuntimeException("An unexpected error occurred while updating the user.", e);
@@ -118,7 +127,6 @@ public class UserService {
 
     // Private helper methods
 
-
     private void updateUserDetails(User user, UserRequest userInfo) {
         user.setName(userInfo.getName());
         user.setEmail(userInfo.getEmail());
@@ -138,14 +146,14 @@ public class UserService {
         User user = userRepository.findByResetToken(token);
         if (user != null && user.getTokenExpiration().isAfter(LocalDateTime.now())) {
             user.setPassword(passwordEncoder.encode(newPassword));
-            user.setIsActive(true); // Activate the user
-            user.setResetToken(null); // Clear reset token
-            user.setTokenExpiration(null); // Clear expiration time
+            user.setIsActive(true);
+            user.setResetToken(null);
+            user.setTokenExpiration(null);
             userRepository.save(user);
             logger.info("Password set successfully for user: {}", user.getEmail());
             return true;
         }
         logger.warn("Failed to set password. Invalid or expired token: {}", token);
-        return false; // Token is invalid or expired
+        return false;
     }
 }
