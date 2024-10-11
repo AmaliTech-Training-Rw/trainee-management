@@ -1,4 +1,4 @@
-package com.trainee_management.trainee_management_service.specialization.model;
+package com.trainee_management.trainee_management_service.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
