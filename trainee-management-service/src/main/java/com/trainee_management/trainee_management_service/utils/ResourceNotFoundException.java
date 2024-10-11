@@ -1,4 +1,4 @@
-package com.trainee_management.trainee_management_service.specialization;
+package com.trainee_management.trainee_management_service.utils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

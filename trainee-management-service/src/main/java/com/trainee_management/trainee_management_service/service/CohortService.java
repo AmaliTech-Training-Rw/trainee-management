@@ -1,8 +1,8 @@
-package com.trainee_management.trainee_management_service.specialization.service;
+package com.trainee_management.trainee_management_service.service;
 
-import com.trainee_management.trainee_management_service.specialization.ResourceNotFoundException;
-import com.trainee_management.trainee_management_service.specialization.model.Cohort;
-import com.trainee_management.trainee_management_service.specialization.repository.CohortRepository;
+import com.trainee_management.trainee_management_service.utils.ResourceNotFoundException;
+import com.trainee_management.trainee_management_service.model.Cohort;
+import com.trainee_management.trainee_management_service.repository.CohortRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
