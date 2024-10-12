@@ -4,6 +4,7 @@ import com.springemail.email.repository.UserRepository;
 import org.json.JSONException;
 import org.json.JSONObject; // Ensure you have this dependency for JSON parsing
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,6 +18,8 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+    @Value("${spring.mail.username}")
+    private String senderEmail;
 
     // Method to listen for new user registrations
 
@@ -40,23 +43,37 @@ public class EmailService {
                         "To create your new password, please use the following link:\n" +
                         "http://yourdomain.com/newPassword?token=%s\n\n" +
                         "Regards,\n" +
-                        "Your Company",
+                        "Trainee Management",
                 name, token);
 
         sendEmail(to, subject, message);
     }
+    public void sendPasswordResetEmail(String to, String otp, String name) throws JSONException {
+        String subject = "Password Reset Request";
+        String message = String.format(
+                "Dear %s,\n\n" +
+                        "You have requested to reset your password. Please use the following OTP to reset your password:\n" +
+                        "OTP: %s\n\n" +
+                        "This OTP is valid for a limited time. If you did not request this, please ignore this email.\n\n" +
+                        "Regards,\n" +
+                        "Your Company",
+                name, otp
+        );
 
-
-    // Method to send an email for password reset
-    public void sendPasswordResetEmail(String to, String token) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Password Reset Request");
-        message.setText("To reset your password, click the link below:\n" +
-                "http://localhost:8081/api/users/change-password?token=" + token);
-
-        mailSender.send(message);
+        sendEmail(to, subject, message);
     }
+
+    @KafkaListener(topics = "${kafka.topic.password-reset}", groupId = "spring.kafka.consumer.group-id")
+    public void listenPasswordReset(String message) throws JSONException {
+        // Parse the JSON message for password reset
+        JSONObject jsonObject = new JSONObject(message);
+        String email = jsonObject.getString("email");
+        String otp = jsonObject.getString("otp");
+        String name = jsonObject.getString("name");
+        sendPasswordResetEmail(email, otp, name);
+    }
+
+
 
     // Method to send a confirmation email after password change
     public void sendPasswordResetConfirmationEmail(String to) {
@@ -68,12 +85,17 @@ public class EmailService {
         sendEmail(to, subject, message);
     }
 
-    // Common method to send an email
-    private void sendEmail(String to, String subject, String message) {
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
+    public void sendEmail(String to, String subject, String message) {
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(to);
         email.setSubject(subject);
         email.setText(message);
+        email.setFrom("Trainee Management <" + senderEmail + ">");
         mailSender.send(email);
     }
+
 }

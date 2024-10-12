@@ -55,23 +55,19 @@ public class UserController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestParam String email) {
-        // Find user by email
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            // Generate a reset token
-            String token = UUID.randomUUID().toString();
-            user.setResetToken(token);
-            userRepository.save(user);
+        // Create a JSON message for Kafka with the provided email
+        String message = String.format("{\"email\":\"%s\"}", email);
 
-            // Send email with the reset link
-            emailService.sendPasswordResetEmail(user.getEmail(), token);
-
-            return ResponseEntity.ok("Password reset link has been sent to your email.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        try {
+            kafkaTemplate.send("${kafka.topic.password-reset}", message);
+            return ResponseEntity.ok("Password reset request has been processed. Check your email.");
+        } catch (Exception e) {
+            System.err.println("Error sending message to Kafka: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while processing the password reset request. Please try again later.");
         }
     }
+
 
 
     @PostMapping("/change-password")

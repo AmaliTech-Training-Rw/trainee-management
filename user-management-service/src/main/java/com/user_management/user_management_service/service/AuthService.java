@@ -5,14 +5,19 @@ import com.user_management.user_management_service.dto.LoginRequest;
 import com.user_management.user_management_service.model.User;
 import com.user_management.user_management_service.repository.UserRepository;
 import com.user_management.user_management_service.utils.JwtUtil;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -22,16 +27,28 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
+    private final OTPService otpService;
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Value("${kafka.topic.password-reset}")
+    private String passwordResetTopic;
+
 
     @Autowired
     public AuthService(JwtUtil jwtUtil,
                        AuthenticationManager authenticationManager,
                        UserDetailsService userDetailsService,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       OTPService otpService) {
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userRepository = userRepository;
+        this.otpService=otpService;
     }
 
     public AuthResponse authenticate(LoginRequest input) {
@@ -75,6 +92,57 @@ public class AuthService {
 
     // Generate JWT token using your custom method
     private String generateToken(Authentication authentication) {
-        return jwtUtil.generateJwtToken(authentication);  // Replace with your actual token generation method
+        return jwtUtil.generateJwtToken(authentication);
     }
+
+    public void processPasswordResetRequest(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (!optionalUser.isPresent()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User savedUser = optionalUser.get();
+
+        // Generate OTP
+        String otp = otpService.generateOTP(savedUser.getId());
+
+        // Prepare the message to send to Kafka
+        JSONObject messageJson = new JSONObject();
+        messageJson.put("userId", savedUser.getId());
+        messageJson.put("email", savedUser.getEmail());
+        messageJson.put("name", savedUser.getName());
+        messageJson.put("otp", otp);
+
+        // Send the message to Kafka
+        kafkaTemplate.send(passwordResetTopic, messageJson.toString());
+
+    }
+
+    public String updatePassword(String otp, String newPassword) {
+        // Retrieve the user ID associated with the OTP
+        Integer userId = otpService.getUserIdByOTP(otp);
+        if (userId == null) {
+            throw new RuntimeException("Invalid or expired OTP");
+        }
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            throw new RuntimeException("User not found");
+        }
+
+        User user = optionalUser.get();
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        otpService.invalidateOTP(otp);
+
+        return "Your password has been updated successfully.";
+    }
+
+
+
 }
+
+
