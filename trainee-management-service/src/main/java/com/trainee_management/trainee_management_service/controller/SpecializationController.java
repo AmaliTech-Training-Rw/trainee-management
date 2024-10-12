@@ -1,7 +1,7 @@
-package com.trainee_management.trainee_management_service.specialization.controller;
+package com.trainee_management.trainee_management_service.controller;
 
-import com.trainee_management.trainee_management_service.specialization.service.SpecializationService;
-import com.trainee_management.trainee_management_service.specialization.model.Specialization;
+import com.trainee_management.trainee_management_service.service.SpecializationService;
+import com.trainee_management.trainee_management_service.model.Specialization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

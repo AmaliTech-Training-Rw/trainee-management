@@ -1,7 +1,7 @@
-package com.trainee_management.trainee_management_service.specialization.controller;
+package com.trainee_management.trainee_management_service.controller;
 
-import com.trainee_management.trainee_management_service.specialization.model.Cohort;
-import com.trainee_management.trainee_management_service.specialization.service.CohortService;
+import com.trainee_management.trainee_management_service.model.Cohort;
+import com.trainee_management.trainee_management_service.service.CohortService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

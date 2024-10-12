@@ -1,6 +1,6 @@
-package com.trainee_management.trainee_management_service.specialization.repository;
+package com.trainee_management.trainee_management_service.repository;
 
-import com.trainee_management.trainee_management_service.specialization.model.Trainee;
+import com.trainee_management.trainee_management_service.model.Trainee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

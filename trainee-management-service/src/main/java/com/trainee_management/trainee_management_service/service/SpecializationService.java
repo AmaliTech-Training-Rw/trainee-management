@@ -1,7 +1,7 @@
-package com.trainee_management.trainee_management_service.specialization.service;
+package com.trainee_management.trainee_management_service.service;
 
-import com.trainee_management.trainee_management_service.specialization.model.Specialization;
-import com.trainee_management.trainee_management_service.specialization.repository.SpecializationRepository;
+import com.trainee_management.trainee_management_service.model.Specialization;
+import com.trainee_management.trainee_management_service.repository.SpecializationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
