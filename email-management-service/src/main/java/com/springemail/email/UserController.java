@@ -3,6 +3,7 @@ package com.springemail.email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,25 +18,36 @@ import java.util.UUID;
 @RequestMapping("/email") // Base URL for user-related endpoints
 public class UserController {
 
+
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate; // Kafka template for sending messages
+
+    private static final String TOPIC = "${kafka.topic.user-created}";
 
     @Autowired
     private EmailService emailService;
 
     @Autowired
     private UserRepository userRepository; // Assuming you have a repository to handle User persistence
+
     @PostMapping("/sendActivationEmail")
-    public String registerUser(@RequestBody User user) {
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
         try {
-            // Only pass the email to the email service method
-            emailService.sendRegistrationEmail(user.getEmail());
-            return "Email sent successfully!";
+            // Prepare the message to be sent to Kafka
+            String message = String.format("{\"email\":\"%s\", \"name\":\"%s\", \"token\":\"%s\"}",
+                    user.getEmail(), user.getName(), user.getResetToken());
+
+            // Send the message to Kafka
+            kafkaTemplate.send("${kafka.topic.user-created}", message);
+
+            return ResponseEntity.ok("Email sent successfully!");
         } catch (Exception e) {
             logger.error("Error registering user: {}", e.getMessage());
-            throw new RuntimeException("User registration failed: " + e.getMessage());
+            return ResponseEntity.status(500).body("User registration failed: " + e.getMessage());
         }
     }
-
 
 
     @PostMapping("/reset-password")

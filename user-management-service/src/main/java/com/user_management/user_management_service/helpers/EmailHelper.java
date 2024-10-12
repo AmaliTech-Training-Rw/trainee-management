@@ -26,24 +26,15 @@ public class EmailHelper {
 
     public void sendActivationEmail(User savedUser, String resetToken) {
         try {
-            // Prepare the EmailRequest DTO for the email service
             RegistrationEmailRequest emailRequest = new RegistrationEmailRequest(savedUser.getEmail(), savedUser.getName(), resetToken);
-
-            // Set headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
-            // Create the HttpEntity containing the EmailRequest
             HttpEntity<RegistrationEmailRequest> requestEntity = new HttpEntity<>(emailRequest, headers);
-
-            // Send a POST request to the email service
             ResponseEntity<String> response = restTemplate.postForEntity(
                     emailServiceUrl + "/sendActivationEmail",
                     requestEntity,
                     String.class
             );
-
-            // Handle the response if needed
             if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("Activation email sent successfully to: {}", savedUser.getEmail());
             } else {

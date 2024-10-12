@@ -1,7 +1,9 @@
 package com.kafka_producer.kafka_producer.controller;
 
+import com.kafka_producer.kafka_producer.dto.MessageRequest;
 import com.kafka_producer.kafka_producer.service.MessageProducer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,9 +17,12 @@ public class MessageController {
         this.messageProducer = messageProducer;
     }
 
-    @PostMapping
-    public String sendMessage(@RequestParam String topic, @RequestParam String message) {
+    @PostMapping("/send")
+    public String sendMessage(@RequestParam String topic, @RequestBody String message) {
         messageProducer.sendMessage(topic, message);
-        return "Message sent to Kafka topic: " + topic;
+        return "Message sent to topic " + topic;
     }
 }
+
+
+

@@ -22,12 +22,12 @@ public class OpenApiConfigs {
             @Value("${openapi.service.title}") String serviceTitle,
             @Value("${openapi.service.version}") String serviceVersion,
             @Value("${openapi.service.url}") String url) {
+
         SecurityScheme securityScheme = new SecurityScheme()
                 .type(Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT")
                 .description("Enter your bearer token");
-
         SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
 
         return new OpenAPI()
