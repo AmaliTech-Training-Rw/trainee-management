@@ -27,12 +27,9 @@
     <modules>
         <module>trainee-management-service</module>
         <module>user-management-service</module>
-        <module>user-login-service</module>
         <module>assessment-management-service</module>
         <module>api-gateway</module>
         <module>server</module>
-        <module>kafka-producer</module>
-        <module>kafka-consumer</module>
         <!-- Add other modules as needed -->
     </modules>
 

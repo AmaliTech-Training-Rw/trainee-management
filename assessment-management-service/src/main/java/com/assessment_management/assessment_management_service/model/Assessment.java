@@ -1,5 +1,6 @@
 package com.assessment_management.assessment_management_service.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,9 +18,11 @@ public class Assessment {
     private String trainerId;
     private LocalDateTime created;
     private List<Question> questions;
+    private String image;         // URL or path to the assessment's image
+    private String description;   // Description of the assessment
+    private String focusArea;     // Focus area of the assessment (e.g., specific subject or topic)
 
     // Getters and setters
-
     public String getId() {
         return id;
     }
@@ -74,5 +77,30 @@ public class Assessment {
 
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
+    }
+
+    // Getters and setters for new fields
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getFocusArea() {
+        return focusArea;
+    }
+
+    public void setFocusArea(String focusArea) {
+        this.focusArea = focusArea;
     }
 }
