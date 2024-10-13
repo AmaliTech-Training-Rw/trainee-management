@@ -29,8 +29,6 @@
         <module>user-management-service</module>
         <module>api-gateway</module>
         <module>server</module>
-        <module>kafka-producer</module>
-        <module>kafka-consumer</module>
         <module>email-management-service</module>
         <!-- Add other modules as needed -->
     </modules>

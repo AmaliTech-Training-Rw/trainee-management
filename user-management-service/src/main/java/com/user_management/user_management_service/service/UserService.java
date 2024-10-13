@@ -71,6 +71,7 @@ public class UserService {
             JSONObject messageJson = new JSONObject();
             messageJson.put("email", savedUser.getEmail());
             messageJson.put("name", savedUser.getName());
+            messageJson.put("password", savedUser.getPassword());
             messageJson.put("token", resetToken);
 
             kafkaTemplate.send(userCreatedTopic, messageJson.toString());
@@ -116,16 +117,6 @@ public class UserService {
         }
     }
 
-    public User getUserById(int id) {
-        return getUserByIdOrThrow(id);
-    }
-
-    public List<User> getAllUsers() {
-        logger.info("Retrieving all users");
-        return userRepository.findAll();
-    }
-
-    // Private helper methods
 
     private void updateUserDetails(User user, UserRequest userInfo) {
         user.setName(userInfo.getName());

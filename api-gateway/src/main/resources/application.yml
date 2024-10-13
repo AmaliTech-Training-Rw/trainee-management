@@ -1,45 +1,53 @@
-# Application Configuration
 spring:
   application:
     name: api-gateway
 
-  # Cloud Gateway Configuration
   cloud:
     gateway:
-      httpclient:
-        connect-timeout: 20000
-        response-timeout: 7s
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes:
-        # Route to Trainee Management Service
+        # Route to Trainee Management Service (Protected)
         - id: trainee-management-service
           uri: lb://trainee-management-service
           predicates:
             - Path=/trainees/**
+          filters:
+            - name: AuthFilter
 
         # Route to User Management Service
-        - id: user-management-service
+        - id: user-management-service-login
           uri: lb://user-management-service
           predicates:
-            - Path=/users/**
+            - Path=/users/login/**, /users/{id}/password,/users/request-password-reset,/users/change-password,/users/verify-otp
 
-        # Route to Email Management Service
+        - id: user-management-service-create
+          uri: lb://user-management-service
+          predicates:
+            - Path=/users/create
+          filters:
+            - name: AuthFilter
+
+        # Route to Email Management Service (Protected)
         - id: email-management-service
-          uri: lb://email
+          uri: lb://email-management-service
           predicates:
             - Path=/email/**
 
 
-  # Eureka Client Configuration
+  # Eureka Configuration
   eureka:
     client:
       service-url:
         defaultZone: http://localhost:8761/eureka/
-      instance:
-        prefer-ip-address: true
-        lease-renewal-interval-in-seconds: 30
-        lease-expiration-duration-in-seconds: 90
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
 
-# Server Configuration
+# Server Port
 server:
   port: 8093
 
@@ -48,7 +56,7 @@ logging:
   level:
     org.springframework.cloud.gateway: DEBUG
 
-# Swagger API Documentation Configuration
+# Swagger API Documentation
 springdoc:
   enable-native-support: true
   api-docs:

@@ -62,30 +62,7 @@ eureka:
       lease-renewal-interval-in-seconds: 30
       lease-expiration-duration-in-seconds: 90
 
----
 
-# Configuration for Service D (User Login Service)
-spring:
-  config:
-    activate:
-      on-profile: user-authentication-service
-
-  application:
-    name: user-login-service
-
-server:
-  port: 8084  # Service D listens on port 8084
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    instance:
-      prefer-ip-address: true
-      lease-renewal-interval-in-seconds: 30
-      lease-expiration-duration-in-seconds: 90
-
----
 
 ---
 
@@ -135,46 +112,3 @@ eureka:
 
 ---
 
-# Configuration for Kafka Producer
-spring:
-  config:
-    activate:
-      on-profile: kafka-producer
-
-  application:
-    name: kafka-producer
-
-server:
-  port: 8094  # Kafka Producer listens on port 8094
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    instance:
-      prefer-ip-address: true
-      lease-renewal-interval-in-seconds: 30
-      lease-expiration-duration-in-seconds: 90
-
----
-
-# Configuration for Kafka Consumer
-spring:
-  config:
-    activate:
-      on-profile: kafka-consumer
-
-  application:
-    name: kafka-consumer
-
-server:
-  port: 8095  # Kafka Consumer listens on port 8095
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    instance:
-      prefer-ip-address: true
-      lease-renewal-interval-in-seconds: 30
-      lease-expiration-duration-in-seconds: 90
