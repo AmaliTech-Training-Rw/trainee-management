@@ -44,16 +44,19 @@ public class TraineeRequest {
     @NotNull(message = "Enrollment date is required")
     private LocalDate enrollmentDate;
 
+    @NotNull(message = "Specialization name is required")
+    private String specializationName;
 
-    @NotNull(message = "Specialization is required")
-    private Long specializationId;
-
-    @NotNull(message = "Cohort is required")
-    private Long cohortId;
+    @NotNull(message = "Cohort name is required")
+    private String cohortName;
 
     @NotNull(message = "Training ID is required")
     private String trainingId;
 
+    /**
+     * Maps the fields of this DTO to a Trainee entity.
+     * The Specialization and Cohort will be set separately in the service layer.
+     */
     public Trainee toTrainee() {
         Trainee trainee = new Trainee();
         trainee.setFirstName(this.firstName);
@@ -68,7 +71,7 @@ public class TraineeRequest {
         trainee.setIsActive(this.status);
         trainee.setEnrollmentDate(this.enrollmentDate);
         trainee.setTrainingId(this.trainingId);
-        // Specialization, photo and Cohort will be set separately
+        // Specialization and Cohort will be set later in the service
         return trainee;
     }
 }

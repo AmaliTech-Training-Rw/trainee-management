@@ -40,8 +40,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/users/login/**","/users/login/oauth2/**","/users/request-password-reset","/users/reset-password").permitAll() // Allow login
-                        .requestMatchers("/users/v3/api-docs", "/users/swagger-ui.html", "/webjars/**", "/users/OAuth2", "/users/{id}/password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/login/**","/users/login/oauth2/**","/users/request-password-reset","/users/change-password").permitAll() // Allow login
+                        .requestMatchers("/users/v3/api-docs", "/users/swagger-ui.html", "/webjars/**", "/users/OAuth2", "/users/{id}/password","/users/verify-otp").permitAll()
                         .requestMatchers("/trainees/**", "/users/**").hasAnyRole("ADMIN", "TRAINER")
                         .anyRequest().authenticated()
                 )

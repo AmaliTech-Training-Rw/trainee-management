@@ -21,7 +21,7 @@ spring:
         - id: user-management-service-login
           uri: lb://user-management-service
           predicates:
-            - Path=/users/login/**, /users/{id}/password,/users/request-password-reset,/users/reset-password
+            - Path=/users/login/**, /users/{id}/password,/users/request-password-reset,/users/change-password,/users/verify-otp
 
         - id: user-management-service-create
           uri: lb://user-management-service
