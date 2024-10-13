@@ -31,6 +31,9 @@
         <module>api-gateway</module>
         <module>server</module>
         <module>email-management-service</module>
+        <module>curriculum</module>
+
+
         <!-- Add other modules as needed -->
     </modules>
 

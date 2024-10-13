@@ -38,6 +38,13 @@ spring:
           predicates:
             - Path=/email/**
 
+        # Route to Curriculum Management Service
+        - id: Curriculum-management-service
+          uri: lb://Curriculum-management-service
+          predicates:
+            - Path=/curriculum/**
+
+
         # Route to Assessment Management Service
         - id: assessment-management-service
           uri: lb://assessment-management-service
@@ -84,7 +91,5 @@ springdoc:
         name: Email Management Service
       - url: /assessment/v3/api-docs
         name: Assessment Management Service
-
-
-
-
+      - url: /curriculum/v3/api-docs
+        name: Curriculum Management Service
