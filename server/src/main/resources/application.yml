@@ -121,16 +121,41 @@ eureka:
     application:
       name: assessment-management-service
 
-  server:
-    port: 8085  # Service E listens on port 8085
+      server:
+        port: 8085  # Service E listens on port 8085
 
-  eureka:
-    client:
-      service-url:
-        defaultZone: http://localhost:8761/eureka/
-      instance:
-        prefer-ip-address: true
-        lease-renewal-interval-in-seconds: 30
-        lease-expiration-duration-in-seconds: 90
+      eureka:
+        client:
+          service-url:
+            defaultZone: http://localhost:8761/eureka/
+          instance:
+            prefer-ip-address: true
+            lease-renewal-interval-in-seconds: 30
+            lease-expiration-duration-in-seconds: 90
+
+---
+
+# Configuration for Service H (Curriculum Management Service)
+spring:
+  config:
+    activate:
+      on-profile: curriculum-management-service
+
+  application:
+    name: curriculum-management-service
+
+server:
+  port: 8088  # Service F listens on port 8088
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
+
+---
 
 
