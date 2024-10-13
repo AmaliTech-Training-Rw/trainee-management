@@ -8,7 +8,7 @@
 		<version>3.3.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.assessment-service</groupId>
+	<groupId>com.assessment_management</groupId> <!-- Updated groupId -->
 	<artifactId>assessment-management-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>assessment-management-service</name>
@@ -55,7 +55,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -90,7 +89,6 @@
 			<artifactId>cloudinary-http44</artifactId>
 			<version>1.29.0</version>
 		</dependency>
-
 	</dependencies>
 
 	<dependencyManagement>
@@ -111,6 +109,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<mainClass>com.assessment_management.assessment_management_service.AssessmentManagementServiceApplication</mainClass> <!-- Updated main class path -->
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
