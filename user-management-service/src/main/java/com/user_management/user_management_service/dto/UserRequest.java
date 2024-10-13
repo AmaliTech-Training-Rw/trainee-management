@@ -1,10 +1,13 @@
 package com.user_management.user_management_service.dto;
 
 
+import com.user_management.user_management_service.model.Role;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class UserRequest {
@@ -26,7 +29,7 @@ public class UserRequest {
     private String password;
 
     @NotNull(message = "Role ID is required")
-    private Integer roleId;
+    private Role role;
 
 }
 

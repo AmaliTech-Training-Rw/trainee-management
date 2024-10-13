@@ -30,6 +30,7 @@
         <module>assessment-management-service</module>
         <module>api-gateway</module>
         <module>server</module>
+        <module>email-management-service</module>
         <!-- Add other modules as needed -->
     </modules>
 

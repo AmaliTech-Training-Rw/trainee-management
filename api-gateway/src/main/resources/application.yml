@@ -2,33 +2,41 @@
 spring:
   application:
     name: api-gateway
-  main:
-    web-application-type: reactive
 
   # Cloud Gateway Configuration
   cloud:
     gateway:
-      httpclient:
-        connect-timeout: 20000
-        response-timeout: 7s
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes:
         # Route to Trainee Management Service
         - id: trainee-management-service
           uri: lb://trainee-management-service
           predicates:
             - Path=/trainees/**
+          filters:
+            - name: AuthFilter
 
         # Route to User Management Service
-        - id: user-management-service
+        - id: user-management-service-login
           uri: lb://user-management-service
           predicates:
-            - Path=/users/**
+            - Path=/users/login/**, /users/{id}/password,/users/request-password-reset,/users/change-password,/users/verify-otp
 
-        # Route to User Login Service
-        - id: user-login-service
-          uri: lb://user-login-service
+        - id: user-management-service-create
+          uri: lb://user-management-service
           predicates:
-            - Path=/login/**
+            - Path=/users/create
+          filters:
+            - name: AuthFilter
+
+        # Route to Email Management Service (Protected)
+        - id: email-management-service
+          uri: lb://email-management-service
+          predicates:
+            - Path=/email/**
 
         # Route to Assessment Management Service
         - id: assessment-management-service
@@ -41,10 +49,10 @@ spring:
     client:
       service-url:
         defaultZone: http://localhost:8761/eureka/
-      instance:
-        prefer-ip-address: true
-        lease-renewal-interval-in-seconds: 30
-        lease-expiration-duration-in-seconds: 90
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
 
 # Server Configuration
 server:
@@ -72,8 +80,8 @@ springdoc:
         name: Trainee Management Service
       - url: /users/v3/api-docs
         name: User Management Service
-      - url: /login/v3/api-docs
-        name: User Login Service
+      - url: /email/v3/api-docs
+        name: Email Management Service
       - url: /assessment/v3/api-docs
         name: Assessment Management Service
 
