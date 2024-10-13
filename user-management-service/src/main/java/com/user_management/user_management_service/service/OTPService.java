@@ -2,6 +2,7 @@ package com.user_management.user_management_service.service;
 
 import com.user_management.user_management_service.model.OTPRecord;
 import com.user_management.user_management_service.repository.OTPRepository;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,4 +82,21 @@ public class OTPService {
             logger.warn("Attempted to delete non-existent OTP: {}", otp);
         }
     }
+    @Getter
+    private Integer verifiedUserId;
+
+    public Integer verifyOtp(String otp) {
+        Integer userId = getUserIdByOTP(otp); // Your existing method to get the user ID
+        if (userId == null) {
+            throw new RuntimeException("Invalid or expired OTP");
+        }
+        // Store the verified user ID
+        this.verifiedUserId = userId;
+        invalidateOTP(otp); // Invalidate the OTP after use
+        return verifiedUserId;
+    }
+    public void clearVerifiedUserId() {
+        this.verifiedUserId = null; // Reset to null
+    }
+
 }

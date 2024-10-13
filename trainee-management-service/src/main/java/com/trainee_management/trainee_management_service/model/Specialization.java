@@ -1,11 +1,12 @@
 package com.trainee_management.trainee_management_service.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 @Entity
+@Table(name = "specializations")
 public class Specialization {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,8 +17,8 @@ public class Specialization {
 
     private String description;
 
+    // Corrected the mappedBy attribute to "specialization"
     @OneToMany(mappedBy = "specialization", cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<Trainee> trainees;
 
     // Getters and Setters

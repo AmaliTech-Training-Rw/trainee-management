@@ -1,6 +1,8 @@
 package com.springemail.email.service;
 
 import com.springemail.email.repository.UserRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.json.JSONException;
 import org.json.JSONObject; // Ensure you have this dependency for JSON parsing
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,23 +32,31 @@ public class EmailService {
         JSONObject jsonObject = new JSONObject(message);
         String email = jsonObject.getString("email");
         String name = jsonObject.getString("name");
+        String password = jsonObject.getString("password");
         String resetToken = jsonObject.getString("token");
 
 
-        sendRegistrationEmail(email, name, resetToken);
+        sendRegistrationEmail(email, name, password, resetToken);
     }
 
     // Method to send an email after registration
-    public void sendRegistrationEmail(String to, String name, String token) {
-        String subject = "Welcome to Our Service!";
-        String message = String.format("Dear %s,\n\n" +
-                        "Thank you for registering with us. We're excited to have you on board!\n" +
-                        "To create your new password, please use the following link:\n" +
-                        "http://yourdomain.com/newPassword?token=%s\n\n" +
-                        "Regards,\n" +
-                        "Trainee Management",
-                name, token);
+    public void sendRegistrationEmail(String to, String name, String password, String token) {
+        String subject = "Welcome to TrainingSuite";
 
+        // Construct the email message with HTML content
+        String message = String.format("<html><body>" +
+                        "<p>Hi %s,</p>" +
+                        "<p>Welcome to TrainingSuite! An account has been created for you by our administrator.</p>" +
+                        "<p>You can now access the platform to manage your training experience.</p>" +
+                        "<p>Here are your account details:</p>" +
+                        "<p>Email: %s</p>" +
+                        "<p>Password: %s</p>" +
+                        "<p>For your security, we recommend updating your password as soon as possible. " +
+                        "Please follow the link below to set your new password:</p>" +
+                        "<p><a href='http://yourdomain.com/newPassword?token=%s'>Login</a></p>" +
+                        "<p>Best Regards,<br>The TraineeSuite Team</p>" +
+                        "</body></html>",
+                name, to, password, token);
         sendEmail(to, subject, message);
     }
     public void sendPasswordResetEmail(String to, String otp, String name) throws JSONException {
@@ -54,9 +65,9 @@ public class EmailService {
                 "Dear %s,\n\n" +
                         "You have requested to reset your password. Please use the following OTP to reset your password:\n" +
                         "OTP: %s\n\n" +
-                        "This OTP is valid for a limited time. If you did not request this, please ignore this email.\n\n" +
+                        "This OTP is valid for a limited time.\n\n" +
                         "Regards,\n" +
-                        "Your Company",
+                        "TraineeSuit Team",
                 name, otp
         );
 
@@ -85,17 +96,21 @@ public class EmailService {
         sendEmail(to, subject, message);
     }
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+
 
     public void sendEmail(String to, String subject, String message) {
-        SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo(to);
-        email.setSubject(subject);
-        email.setText(message);
-        email.setFrom("Trainee Management <" + senderEmail + ">");
-        mailSender.send(email);
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(message, true);
+        helper.setFrom("TraininingSuite <" + senderEmail + ">");
+        mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

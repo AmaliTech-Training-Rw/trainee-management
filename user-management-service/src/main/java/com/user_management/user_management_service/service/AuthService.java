@@ -118,25 +118,24 @@ public class AuthService {
 
     }
 
-    public String updatePassword(String otp, String newPassword) {
-        // Retrieve the user ID associated with the OTP
-        Integer userId = otpService.getUserIdByOTP(otp);
+    public String updatePassword(String newPassword) {
+        Integer userId = otpService.getVerifiedUserId();
         if (userId == null) {
-            throw new RuntimeException("Invalid or expired OTP");
+            throw new RuntimeException("No user is verified for password update.");
         }
 
         Optional<User> optionalUser = userRepository.findById(userId);
         if (!optionalUser.isPresent()) {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException("User not found.");
         }
 
         User user = optionalUser.get();
-
         String encodedPassword = passwordEncoder.encode(newPassword);
-
         user.setPassword(encodedPassword);
         userRepository.save(user);
-        otpService.invalidateOTP(otp);
+
+        // Optionally clear the verified user ID after use
+        otpService.clearVerifiedUserId();
 
         return "Your password has been updated successfully.";
     }

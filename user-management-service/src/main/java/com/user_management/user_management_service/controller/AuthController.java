@@ -3,6 +3,7 @@ package com.user_management.user_management_service.controller;
 import com.user_management.user_management_service.dto.LoginRequest;
 import com.user_management.user_management_service.dto.ResponseMessage;
 import com.user_management.user_management_service.service.AuthService;
+import com.user_management.user_management_service.service.OTPService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,9 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final OTPService otpService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService,
+                          OTPService otpService) {
         this.authService = authService;
+        this.otpService=otpService;
     }
 
     // Authentication
@@ -67,14 +71,23 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
-    @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String otp,
-                                                @RequestParam String newPassword) {
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestParam String newPassword) {
         try {
-            String confirmationMessage = authService.updatePassword(otp, newPassword);
-            return ResponseEntity.ok(confirmationMessage);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+            String message = authService.updatePassword(newPassword);
+            return ResponseEntity.ok(message); // Return success message
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(e.getMessage()); // Handle exceptions
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(@RequestParam String otp) {
+        try {
+            otpService.verifyOtp(otp);
+            return ResponseEntity.ok("OTP verified. You can now proceed to change your password.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 }

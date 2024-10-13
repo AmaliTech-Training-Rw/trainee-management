@@ -27,6 +27,9 @@ public class OTPRecord {
     @Column(nullable = false)
     private boolean isValid;
 
+    @Column(nullable = false)
+    private boolean isVerified;
+
 
 
 }

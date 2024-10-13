@@ -1,9 +1,12 @@
 package com.trainee_management.trainee_management_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,12 +43,16 @@ public class Trainee {
 
 
     @ManyToOne
-    @JoinColumn(name = "specialization_id")  // Ensure this matches your database
+    @JoinColumn(name = "specialization_id")
+    @JsonIgnore// Ensure this matches your database
     private Specialization specialization;
 
     @ManyToOne
-    @JoinColumn(name = "cohort_id")  // Ensure this matches your database
+    @JoinColumn(name = "cohort_id")
+    @JsonIgnore// Ensure this matches your database
     private Cohort cohort;
+
+
 
 
 }

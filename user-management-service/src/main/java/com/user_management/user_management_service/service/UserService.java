@@ -71,6 +71,7 @@ public class UserService {
             JSONObject messageJson = new JSONObject();
             messageJson.put("email", savedUser.getEmail());
             messageJson.put("name", savedUser.getName());
+            messageJson.put("password", savedUser.getPassword());
             messageJson.put("token", resetToken);
 
             kafkaTemplate.send(userCreatedTopic, messageJson.toString());
