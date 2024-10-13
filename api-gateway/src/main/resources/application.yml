@@ -1,7 +1,9 @@
+# Application Configuration
 spring:
   application:
     name: api-gateway
 
+  # Cloud Gateway Configuration
   cloud:
     gateway:
       discovery:
@@ -9,7 +11,7 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        # Route to Trainee Management Service (Protected)
+        # Route to Trainee Management Service
         - id: trainee-management-service
           uri: lb://trainee-management-service
           predicates:
@@ -36,8 +38,13 @@ spring:
           predicates:
             - Path=/email/**
 
+        # Route to Assessment Management Service
+        - id: assessment-management-service
+          uri: lb://assessment-management-service
+          predicates:
+            - Path=/assessment/**
 
-  # Eureka Configuration
+  # Eureka Client Configuration
   eureka:
     client:
       service-url:
@@ -47,7 +54,7 @@ spring:
       lease-renewal-interval-in-seconds: 30
       lease-expiration-duration-in-seconds: 90
 
-# Server Port
+# Server Configuration
 server:
   port: 8093
 
@@ -56,7 +63,7 @@ logging:
   level:
     org.springframework.cloud.gateway: DEBUG
 
-# Swagger API Documentation
+# Swagger API Documentation Configuration
 springdoc:
   enable-native-support: true
   api-docs:
@@ -75,3 +82,9 @@ springdoc:
         name: User Management Service
       - url: /email/v3/api-docs
         name: Email Management Service
+      - url: /assessment/v3/api-docs
+        name: Assessment Management Service
+
+
+
+

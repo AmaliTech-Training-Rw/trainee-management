@@ -1,10 +1,12 @@
 
-package com.springemail.email;
+package com.assessment_management.assessment_management_service;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EmailApplicationTests {
+class DemoApplicationTests {
+
 	@Test
 	void contextLoads() {
 	}
