@@ -37,6 +37,11 @@ spring:
           uri: lb://email-management-service
           predicates:
             - Path=/email/**
+        # Route to Email Management Service
+        - id: file-management-service
+          uri: lb://file-management-service
+          predicates:
+            - Path=/files/**
 
         # Route to Assessment Management Service
         - id: assessment-management-service

@@ -97,6 +97,9 @@ public Trainee partialUpdateTrainee(Long id, Map<String, Object> updates) {
             case "university":
                 trainee.setUniversity((String) fieldValue);
                 break;
+            case "photoUrl":
+                trainee.setPhotoUrl((String) fieldValue);
+                break;
             case "dateOfBirth":
                 trainee.setDateOfBirth(LocalDate.parse((String) fieldValue));
                 break;

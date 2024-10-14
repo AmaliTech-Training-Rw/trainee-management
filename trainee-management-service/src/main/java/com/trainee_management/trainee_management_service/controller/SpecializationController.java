@@ -32,9 +32,13 @@ public class SpecializationController {
 
     // Get a specialization by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Specialization> getSpecializationById(@PathVariable Long id) {
-        Optional<Specialization> specialization = specializationService.getSpecializationById(id);
-        return specialization.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Object> getSpecializationById(@PathVariable Long id) {
+        try {
+            Optional<Specialization> specialization = specializationService.getSpecializationById(id);
+            return ResponseEntity.ok(specialization);
+        }catch (Exception e){
+           return ResponseEntity.notFound().build();
+        }
     }
 
     // Get all specializations

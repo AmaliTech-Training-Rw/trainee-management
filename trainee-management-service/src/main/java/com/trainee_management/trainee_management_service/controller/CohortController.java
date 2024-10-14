@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/trainees/cohorts")
@@ -26,8 +27,12 @@ public class CohortController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cohort> getCohortById(@PathVariable Long id) {
-        return ResponseEntity.ok(cohortService.getCohortById(id).orElse(null));
+    public ResponseEntity<Optional<Cohort>> getCohortById(@PathVariable Long id) {
+        try{
+            return ResponseEntity.ok(cohortService.getCohortById(id));
+        }catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/all")

@@ -50,6 +50,8 @@ public class TraineeRequest {
     @NotNull(message = "Cohort name is required")
     private String cohortName;
 
+    private String photoUrl;
+
     @NotNull(message = "Training ID is required")
     private String trainingId;
 
