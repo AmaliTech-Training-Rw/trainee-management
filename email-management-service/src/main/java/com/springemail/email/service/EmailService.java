@@ -1,6 +1,7 @@
 package com.springemail.email.service;
 
 import com.springemail.email.repository.UserRepository;
+import com.assessment_management.assessment_management_service.model.TraineeProgress;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.json.JSONException;
@@ -111,6 +112,23 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // New method to send progress update email
+    public void sendProgressUpdateEmail(String to, TraineeProgress progress) {
+        String subject = "Your Progress Has Been Updated";
+
+        // Construct the email message with HTML content
+        String message = String.format("<html><body>" +
+                        "<p>Hi,</p>" +
+                        "<p>Your training progress has been updated.</p>" +
+                        "<p>Current Phase: %s</p>" +
+                        "<p>Progress Indicator: %s</p>" +
+                        "<p>Best Regards,<br>The TraineeSuite Team</p>" +
+                        "</body></html>",
+                progress.getCurrentPhase(), progress.getProgressIndicator());
+
+        sendEmail(to, subject, message);
     }
 
 }

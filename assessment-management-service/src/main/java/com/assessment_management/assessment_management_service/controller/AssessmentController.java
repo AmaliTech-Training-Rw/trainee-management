@@ -1,6 +1,8 @@
 package com.assessment_management.assessment_management_service.controller;
 
 import com.assessment_management.assessment_management_service.model.Assessment;
+import com.assessment_management.assessment_management_service.model.AssessmentStatus;
+import com.assessment_management.assessment_management_service.model.AssessmentType;
 import com.assessment_management.assessment_management_service.service.AssessmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,4 +46,18 @@ public class AssessmentController {
     public ResponseEntity<Void> deleteAssessment(@PathVariable String id) {
         return assessmentService.deleteAssessment(id);
     }
+
+
+    // Endpoint to get all GRADED assessments
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<Assessment>> getUnGradedAssessments(@PathVariable AssessmentStatus status) {
+        return assessmentService.getUnGradedAssessments(status);
+    }
+
+    // Endpoint to get assessments by type (either LAB or QUIZ)
+    @GetMapping("/type/{type}")
+    public ResponseEntity<List<Assessment>> getAssessmentsByType(@PathVariable AssessmentType type) {
+        return assessmentService.getAssessmentsByType(type);
+    }
+
 }

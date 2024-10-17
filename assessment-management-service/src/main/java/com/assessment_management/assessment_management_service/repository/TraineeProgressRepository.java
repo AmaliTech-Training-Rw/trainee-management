@@ -5,5 +5,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface TraineeProgressRepository extends MongoRepository<TraineeProgress, String> {
-    List<TraineeProgress> findByTraineeName(String traineeName);
+
+    TraineeProgress findByTraineeName(String traineeName);
+    // New method to find TraineeProgress by email
+
 }

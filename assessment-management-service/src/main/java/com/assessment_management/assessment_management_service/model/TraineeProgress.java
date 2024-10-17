@@ -21,7 +21,7 @@ public class TraineeProgress {
     // Constructors
     public TraineeProgress() {}
 
-    public TraineeProgress(String traineeName, CurrentPhase currentPhase, String progressIndicator, LocalDate completionDate) {
+    public TraineeProgress(String traineeName,String traineeEmail, CurrentPhase currentPhase, String progressIndicator, LocalDate completionDate) {
         this.traineeName = traineeName;
         this.currentPhase = currentPhase;
         this.progressIndicator = progressIndicator;
@@ -44,6 +44,7 @@ public class TraineeProgress {
     public void setTraineeName(String traineeName) {
         this.traineeName = traineeName;
     }
+
 
     public CurrentPhase getCurrentPhase() {
         return currentPhase;

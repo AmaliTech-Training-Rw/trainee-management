@@ -4,6 +4,7 @@ import com.assessment_management.assessment_management_service.exception.Assessm
 import com.assessment_management.assessment_management_service.exception.BadRequestException;
 import com.assessment_management.assessment_management_service.model.Assessment;
 import com.assessment_management.assessment_management_service.model.AssessmentStatus;
+import com.assessment_management.assessment_management_service.model.AssessmentType;
 import com.assessment_management.assessment_management_service.model.Question;
 import com.assessment_management.assessment_management_service.repository.AssessmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,5 +114,18 @@ public class AssessmentService {
                 }
             }
         }
+    }
+
+
+    // Method to get (GRADED or UNGRADED) assessments
+    public ResponseEntity<List<Assessment>> getUnGradedAssessments(AssessmentStatus status) {
+        List<Assessment> gradedAssessments = assessmentRepository.findByStatus(status);
+        return new ResponseEntity<>(gradedAssessments, HttpStatus.OK);
+    }
+
+    // Method to get assessments by type (LAB or QUIZ)
+    public ResponseEntity<List<Assessment>> getAssessmentsByType(AssessmentType type) {
+        List<Assessment> assessments = assessmentRepository.findByType(type);
+        return new ResponseEntity<>(assessments, HttpStatus.OK);
     }
 }

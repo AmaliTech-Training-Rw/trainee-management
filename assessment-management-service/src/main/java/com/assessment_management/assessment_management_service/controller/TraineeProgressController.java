@@ -28,11 +28,6 @@ public class TraineeProgressController {
         return traineeProgressService.getProgressById(id);
     }
 
-    // Get trainee progress by trainee name
-    @GetMapping("/name/{traineeName}")
-    public ResponseEntity<List<TraineeProgress>> getProgressByTraineeName(@PathVariable String traineeName) {
-        return traineeProgressService.getProgressByTraineeName(traineeName);
-    }
 
     // Create new trainee progress
     @PostMapping

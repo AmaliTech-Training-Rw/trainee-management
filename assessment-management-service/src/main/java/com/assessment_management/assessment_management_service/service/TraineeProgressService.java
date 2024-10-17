@@ -18,6 +18,7 @@ public class TraineeProgressService {
     @Autowired
     private TraineeProgressRepository traineeProgressRepository;
 
+
     public ResponseEntity<List<TraineeProgress>> getAllProgress() {
         List<TraineeProgress> progressList = traineeProgressRepository.findAll();
         return new ResponseEntity<>(progressList, HttpStatus.OK);  // Return OK status
@@ -32,10 +33,10 @@ public class TraineeProgressService {
         }
     }
 
-    public ResponseEntity<List<TraineeProgress>> getProgressByTraineeName(String traineeName) {
-        List<TraineeProgress> progressList = traineeProgressRepository.findByTraineeName(traineeName);
-        return new ResponseEntity<>(progressList, HttpStatus.OK);  // Return OK status
-    }
+//    public ResponseEntity<List<TraineeProgress>> getProgressByTraineeName(String traineeName) {
+//        List<TraineeProgress> progressList = traineeProgressRepository.findByTraineeName(traineeName);
+//        return new ResponseEntity<>(progressList, HttpStatus.OK);  // Return OK status
+//    }
 
     public ResponseEntity<TraineeProgress> saveProgress(TraineeProgress traineeProgress) {
         // Automatically set the progressIndicator based on the currentPhase
@@ -54,6 +55,8 @@ public class TraineeProgressService {
                 existingProgress.setCurrentPhase(updatedProgress.getCurrentPhase());
                 // Automatically update the progressIndicator based on the new currentPhase
                 existingProgress.setProgressIndicator(getProgressIndicatorByPhase(updatedProgress.getCurrentPhase()));
+
+
             }
 
             TraineeProgress updated = traineeProgressRepository.save(existingProgress);
@@ -62,6 +65,8 @@ public class TraineeProgressService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return 404 if the progress with the given id doesn't exist
         }
     }
+
+
 
     public ResponseEntity<Void> deleteProgress(String id) {
         if (traineeProgressRepository.existsById(id)) {
