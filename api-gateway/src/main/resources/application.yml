@@ -42,8 +42,17 @@ spring:
         - id: assessment-management-service
           uri: lb://assessment-management-service
           predicates:
-            - Path=/assessment/**
+            - Path=/assessments/**
+          filters:
+            - name: AuthFilter
 
+  globalcors:
+    cors-configurations:
+      '[/**]': # Applies to all paths
+        allowedOrigins: "*"
+        allowedMethods: GET, POST, PUT, DELETE, OPTIONS
+        allowedHeaders: "*"
+        allowCredentials: true
   # Eureka Client Configuration
   eureka:
     client:
@@ -82,9 +91,6 @@ springdoc:
         name: User Management Service
       - url: /email/v3/api-docs
         name: Email Management Service
-      - url: /assessment/v3/api-docs
+      - url: /assessments/v3/api-docs
         name: Assessment Management Service
-
-
-
 

@@ -6,6 +6,7 @@ import com.assessment_management.assessment_management_service.model.Assessment;
 import com.assessment_management.assessment_management_service.model.AssessmentStatus;
 import com.assessment_management.assessment_management_service.model.Question;
 import com.assessment_management.assessment_management_service.repository.AssessmentRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,16 +21,26 @@ public class AssessmentService {
 
     @Autowired
     private AssessmentRepository assessmentRepository;
+    private final HttpServletRequest request;
 
+    @Autowired
+    public AssessmentService(AssessmentRepository assessmentRepository, HttpServletRequest request) {
+        this.assessmentRepository = assessmentRepository;
+        this.request = request;
+    }
     // Create a new assessment, including the embedded questions
     public ResponseEntity<?> createAssessment(Assessment assessment) {
+        String userId = getUserIdFromRequest();
+
+        // Set trainerId and created date
+        assessment.setTrainerId(userId);
         // Check for null assessment
         if (assessment == null) {
             throw new BadRequestException("Assessment cannot be null.");
         }
 
         // Validate required fields
-        if (assessment.getTitle() == null || assessment.getTitle().trim().isEmpty()) {
+        if (assessment.getTitle() == null) {
             throw new BadRequestException("Title is required.");
         }
         if (assessment.getType() == null) {
@@ -103,6 +114,15 @@ public class AssessmentService {
         assessmentRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Return no content status
     }
+
+    private String getUserIdFromRequest() {
+        String userId = request.getHeader("x-auth-user-id");
+        if (userId == null || userId.isEmpty()) {
+            throw new BadRequestException("User ID not found in request headers");
+        }
+        return userId;
+    }
+
 
     // Helper method to assign IDs to each question
     private void assignIdsToQuestions(List<Question> questions) {

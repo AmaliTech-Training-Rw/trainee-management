@@ -3,6 +3,7 @@ package com.api_gateway.api_gateway.filter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -13,7 +14,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.charset.StandardCharsets;
 
@@ -26,17 +26,14 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
     @Value("${security.jwt.token.expiration}")
     private long jwtExpiration;
 
-    private final WebClient.Builder webClientBuilder;
-
-    public AuthFilter(WebClient.Builder webClientBuilder) {
+    public AuthFilter() {
         super(Config.class);
-        this.webClientBuilder = webClientBuilder;
     }
 
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            // Authorization header check
+            // Check for Authorization header
             if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return this.onError(exchange, "Missing Authorization header", HttpStatus.UNAUTHORIZED);
             }
@@ -58,14 +55,26 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                         .parseClaimsJws(token)
                         .getBody();
 
+                // Extract user ID from claims
+                String userId = claims.get("userId", String.class);  // Assuming userId is a claim in your token
 
-                String email = claims.getSubject();
+                if (userId == null || userId.isEmpty()) {
+                    return this.onError(exchange, "User ID not found in token", HttpStatus.UNAUTHORIZED);
+                }
+
+                // Set userId in MDC for logging purposes
+                MDC.put("userId", userId);
+
+                // Add userId and Authorization header for downstream services
                 exchange.getRequest()
                         .mutate()
-                        .header("x-auth-user-email", email)
+                        .header("x-auth-user-id", userId)  // Custom header to propagate userId
+                        .header(HttpHeaders.AUTHORIZATION, authHeader) // Preserve the original Authorization header
                         .build();
 
-                return chain.filter(exchange);
+                // Continue with the filter chain
+                return chain.filter(exchange)
+                        .doFinally(signalType -> MDC.clear());  // Clear MDC after request processing
 
             } catch (SignatureException e) {
                 return this.onError(exchange, "Invalid token", HttpStatus.UNAUTHORIZED);

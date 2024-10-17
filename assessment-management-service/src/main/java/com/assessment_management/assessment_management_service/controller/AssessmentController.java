@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/assessments")
+@RequestMapping("/assessments")
 public class AssessmentController {
 
     @Autowired
     private AssessmentService assessmentService;
 
     // Create a new assessment
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createAssessment(@RequestBody Assessment assessment) {
         return assessmentService.createAssessment(assessment);
     }
@@ -28,7 +28,7 @@ public class AssessmentController {
     }
 
     // Get all assessments
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Assessment>> getAllAssessments() {
         return assessmentService.getAllAssessments();
     }

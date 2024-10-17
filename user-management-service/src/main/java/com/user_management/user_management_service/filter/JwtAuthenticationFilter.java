@@ -36,10 +36,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String token = extractToken(request); // Make sure this method extracts the token properly
+
+        // Skip JWT authentication for OPTIONS requests (CORS preflight)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            logger.info("Skipping JWT authentication for OPTIONS request");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Extract JWT token from the request
+        String token = extractToken(request);
 
         if (StringUtils.hasText(token) && jwtUtil.validateJwtToken(token)) {
-            String email = jwtUtil.getEmailFromJwt(token); // Extract email from the token
+            String email = jwtUtil.getEmailFromJwt(token); // Extract email from JWT
 
             if (email == null) {
                 logger.error("Extracted email is null from JWT token.");
@@ -48,19 +57,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             try {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email); // Load user by email
+                // Load user by email
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 logger.info("User details loaded for: " + email);
 
+                // Create authentication token and set it in the security context
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (UsernameNotFoundException e) {
-                logger.error("User not found: " + email);
+                logger.error("User not found: " + email, e);
             }
         }
 
         filterChain.doFilter(request, response);
     }
+
 
     private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

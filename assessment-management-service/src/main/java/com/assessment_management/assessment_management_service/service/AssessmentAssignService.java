@@ -4,16 +4,21 @@ import com.assessment_management.assessment_management_service.exception.Assessm
 import com.assessment_management.assessment_management_service.exception.BadRequestException;
 import com.assessment_management.assessment_management_service.model.Assessment;
 import com.assessment_management.assessment_management_service.model.AssessmentAssignment;
+import com.assessment_management.assessment_management_service.model.Trainee; // Import your Trainee model class
 import com.assessment_management.assessment_management_service.repository.AssessmentRepository;
 import com.assessment_management.assessment_management_service.repository.AssessmentAssignmentRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class AssessmentAssignService {
@@ -24,83 +29,172 @@ public class AssessmentAssignService {
     @Autowired
     private AssessmentAssignmentRepository assignmentRepository;
 
-    public ResponseEntity<?> assignAssessment(String assessmentId, List<String> traineeIds) {
-        // Check for null or empty traineeIds
+    @Autowired
+    private RestTemplate restTemplate;
+
+    private static final String TRAINEE_SERVICE_URL = "http://localhost:8093/trainees/all";
+
+    public ResponseEntity<?> assignAssessment(String assessmentId, List<String> traineeIds, HttpServletRequest request) {
+        validateId(assessmentId, "Assessment ID");
+
+        String authorizationHeader = request.getHeader("Authorization");
+
+        // Prepare HttpHeaders with Authorization token
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", authorizationHeader);
+
+        // Fetch trainee IDs from external service if none are provided
         if (traineeIds == null || traineeIds.isEmpty()) {
-            throw new BadRequestException("Trainee IDs cannot be null or empty.");
+            traineeIds = fetchAllTrainees(headers);
         }
 
-        // Validate assessment existence
+        validateIds(traineeIds, "Trainee IDs");
+
+        // Validate provided trainee IDs against valid trainees from the external service
+        validateTraineeIds(traineeIds, headers);
+
+        // Ensure the assessment exists
         Assessment assessment = assessmentRepository.findById(assessmentId)
                 .orElseThrow(() -> new AssessmentNotFoundException("Assessment with ID " + assessmentId + " not found"));
 
-        // Fetch the existing assignment for the assessmentId
+        // Get the existing assessment assignment
         List<AssessmentAssignment> assignments = assignmentRepository.findByAssessmentId(assessmentId);
 
-        // Check if there is an existing assignment
-        AssessmentAssignment existingAssignment;
+        // Check if any assignments exist
         if (!assignments.isEmpty()) {
-            // Get the existing assignment (assuming you want to update the first one in the list)
-            existingAssignment = assignments.get(0);
+            AssessmentAssignment assignment = assignments.get(0); // Retrieve the first existing assignment
+            List<String> existingTraineeIds = assignment.getTraineeIds();
 
-            // Merge the existing traineeIds with the new ones
-            List<String> existingTraineeIds = existingAssignment.getTraineeIds();
-            if (existingTraineeIds != null) {
-                // Avoid adding duplicates
-                for (String traineeId : traineeIds) {
-                    if (!existingTraineeIds.contains(traineeId)) {
-                        existingTraineeIds.add(traineeId);
-                    }
+            // Create a Set to keep track of unique trainee IDs
+            Set<String> traineeSet = new HashSet<>(existingTraineeIds); // Start with existing IDs
+
+            // Track whether any duplicates were found
+            boolean duplicatesFound = false;
+
+            // Add new trainee IDs while checking for duplicates
+            for (String traineeId : traineeIds) {
+                if (!traineeSet.add(traineeId)) {
+                    // Duplicate trainee ID detected
+                    System.out.println("Duplicate trainee ID detected: " + traineeId);
+                    duplicatesFound = true; // Set the flag to indicate duplicates were found
                 }
-            } else {
-                existingAssignment.setTraineeIds(traineeIds); // If no trainees exist, set the new list
             }
-        } else {
-            // Create a new assignment if none exists
-            existingAssignment = new AssessmentAssignment();
-            existingAssignment.setAssessmentId(assessment.getId()); // Set the assessmentId from the fetched assessment
-            existingAssignment.setTraineeIds(traineeIds);
-            existingAssignment.setAssignedDate(LocalDateTime.now().toString()); // Store the assigned date as a String
-        }
 
-        // Save the updated or new assignment
-        AssessmentAssignment savedAssignment = assignmentRepository.save(existingAssignment);
-        return new ResponseEntity<>(savedAssignment, HttpStatus.CREATED); // Return created status
+            // If duplicates were found, respond accordingly
+            if (duplicatesFound) {
+                return new ResponseEntity<>("Some trainee IDs were duplicates and were not assigned.", HttpStatus.CONFLICT);
+            }
+
+            // Update the assignment with unique trainee IDs
+            assignment.setTraineeIds(new ArrayList<>(traineeSet)); // Convert back to List
+
+            // Save the updated assignment and return the response
+            AssessmentAssignment updatedAssignment = assignmentRepository.save(assignment);
+            return new ResponseEntity<>(updatedAssignment, HttpStatus.OK);
+        } else {
+            // Create a new assignment if no existing assignments are found
+            AssessmentAssignment newAssignment = new AssessmentAssignment();
+            newAssignment.setAssessmentId(assessmentId);
+            newAssignment.setTraineeIds(traineeIds); // Assign trainee IDs
+
+            // Save the new assignment
+            AssessmentAssignment savedAssignment = assignmentRepository.save(newAssignment);
+            return new ResponseEntity<>(savedAssignment, HttpStatus.CREATED);
+        }
     }
 
-
-
-    // Add cohorts to an existing assessment assignment
-    public ResponseEntity<AssessmentAssignment> addCohortsToAssignment(String assignmentId, List<String> cohortsIds) {
-        // Validate cohortsIds
-        if (cohortsIds == null || cohortsIds.isEmpty()) {
-            throw new BadRequestException("Cohorts IDs cannot be null or empty.");
+    public ResponseEntity<AssessmentAssignment> addCohortsToAssignment(String assignmentId, List<String> cohortIds) {
+        if (cohortIds == null || cohortIds.isEmpty()) {
+            throw new BadRequestException("Cohort IDs cannot be null or empty.");
         }
 
-        // Fetch the existing assignment
-        System.out.println("Assignment with ID " + assignmentId);
-        List<AssessmentAssignment> assignments = assignmentRepository.findByAssessmentId(assignmentId);
+        // Fetch existing assignment by ID
+        AssessmentAssignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new AssessmentNotFoundException("Assignment with ID " + assignmentId + " not found"));
 
-        // Check if the assignment exists
-        if (assignments.isEmpty()) {
-            throw new AssessmentNotFoundException("Assignment with ID " + assignmentId + " not found");
-        }
-
-        // Assuming you want to work with the first assignment in the list
-        AssessmentAssignment existingAssignment = assignments.get(0);
-
-        // Add the new cohorts IDs to the existing list
-        List<String> existingCohortsIds = existingAssignment.getCohortsIds();
-        if (existingCohortsIds != null) {
-            existingCohortsIds.addAll(cohortsIds);
+        // Add new cohort IDs to the existing list
+        if (assignment.getCohortsIds() != null) {
+            assignment.getCohortsIds().addAll(cohortIds);
         } else {
-            existingAssignment.setCohortsIds(cohortsIds);
+            assignment.setCohortsIds(cohortIds);
         }
 
-        // Save the updated assignment
-        AssessmentAssignment updatedAssignment = assignmentRepository.save(existingAssignment);
-
+        // Save and return the updated assignment
+        AssessmentAssignment updatedAssignment = assignmentRepository.save(assignment);
         return new ResponseEntity<>(updatedAssignment, HttpStatus.OK);
     }
 
+    private List<String> fetchAllTrainees(HttpHeaders headers) {
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<List<Trainee>> response;
+
+        try {
+            response = restTemplate.exchange(
+                    TRAINEE_SERVICE_URL,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<List<Trainee>>() {}
+            );
+        } catch (Exception e) {
+            throw new BadRequestException("Error fetching trainees: " + e.getMessage());
+        }
+
+        // Log the response status and body
+        System.out.println("Response Status: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody());
+
+        List<Trainee> trainees = response.getBody();
+        if (trainees == null || trainees.isEmpty()) {
+            throw new BadRequestException("No available trainees found.");
+        }
+
+        // Extract trainee IDs
+        return trainees.stream()
+                .map(Trainee::getId) // Get the ID of each trainee
+                .toList(); // Convert to list
+    }
+
+    private void validateTraineeIds(List<String> traineeIds, HttpHeaders headers) {
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<List<Trainee>> validTraineesResponse = restTemplate.exchange(
+                TRAINEE_SERVICE_URL,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<List<Trainee>>() {}
+        );
+
+        List<Trainee> validTrainees = validTraineesResponse.getBody();
+        if (validTrainees == null || validTrainees.isEmpty()) {
+            throw new BadRequestException("No valid trainees available.");
+        }
+
+        List<String> validTraineeIds = validTrainees.stream()
+                .map(Trainee::getId)
+                .toList();
+
+        for (String traineeId : traineeIds) {
+            if (!validTraineeIds.contains(traineeId)) {
+                throw new BadRequestException("Invalid trainee ID: " + traineeId);
+            }
+        }
+    }
+
+    private void validateIds(List<String> ids, String type) {
+        if (ids == null || ids.isEmpty()) {
+            throw new BadRequestException(type + " cannot be null or empty.");
+        }
+        // Additional validation logic can be added here if needed
+    }
+
+    private void validateId(String id, String type) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new BadRequestException(type + " cannot be null or empty.");
+        }
+        // Additional validation logic can be added here if needed
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }

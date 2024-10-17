@@ -1,5 +1,6 @@
 package com.trainee_management.trainee_management_service.service;
 
+import com.trainee_management.trainee_management_service.config.TraineeProducer;
 import com.trainee_management.trainee_management_service.dto.TraineeRequest;
 import com.trainee_management.trainee_management_service.model.Cohort;
 import com.trainee_management.trainee_management_service.model.Specialization;
@@ -25,6 +26,8 @@ public class TraineeService {
 
     @Autowired
     private CohortRepository cohortRepository;
+    @Autowired
+    private TraineeProducer traineeProducer;
 
     @Autowired
     private SpecializationRepository specializationRepository;
@@ -70,9 +73,12 @@ public Trainee addTrainee(TraineeRequest traineeRequest) {
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee not found with id " + id));
     }
 
-    @Transactional(readOnly = true)
     public List<Trainee> getAllTrainees() {
-        return traineeRepository.findAll();
+        // Fetch all trainees from the database
+        List<Trainee> trainees = traineeRepository.findAll();
+
+        // Return the list of Trainee objects
+        return trainees;
     }
 // update trainee
 @Transactional
@@ -139,6 +145,9 @@ public Trainee partialUpdateTrainee(Long id, Map<String, Object> updates) {
         Trainee trainee = traineeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Trainee not found with id " + id));
         traineeRepository.delete(trainee);
+    }
+    public List<Trainee> getTraineesByIds(List<Long> traineeIds) {
+        return traineeRepository.findAllById(traineeIds);
     }
 
 }

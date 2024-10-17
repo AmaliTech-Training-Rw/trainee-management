@@ -8,13 +8,13 @@ server:
 
 eureka:
   client:
-    register-with-eureka: false  # Disable self-registration for the Eureka server
-    fetch-registry: false         # Disable registry fetching for the server
+    register-with-eureka: false
+    fetch-registry: false
 
 logging:
   level:
-    com.netflix.eureka: DEBUG     # Temporarily set to DEBUG for troubleshooting
-    com.netflix.discovery: DEBUG    # Temporarily set to DEBUG for troubleshooting
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG
 
 ---
 
@@ -33,11 +33,11 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/  # Point to Eureka server's URL
+      defaultZone: http://localhost:8761/eureka/
     instance:
-      prefer-ip-address: true                       # Use IP address for service registration
-      lease-renewal-interval-in-seconds: 30       # Heartbeat interval
-      lease-expiration-duration-in-seconds: 90      # Expiration time
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
 
 ---
 
@@ -62,11 +62,8 @@ eureka:
       lease-renewal-interval-in-seconds: 30
       lease-expiration-duration-in-seconds: 90
 
-
-
 ---
-
-# Configuration for Service F (Email Management Service)
+# Configuration for Service E (Email Management Service)
 spring:
   config:
     activate:
@@ -76,7 +73,7 @@ spring:
     name: email-management-service
 
 server:
-  port: 8086  # Service F listens on port 8086
+  port: 8086  # Service E listens on port 8086
 
 eureka:
   client:
@@ -88,6 +85,7 @@ eureka:
       lease-expiration-duration-in-seconds: 90
 
 ---
+
 
 # Configuration for API Gateway
 spring:
@@ -132,5 +130,27 @@ eureka:
         prefer-ip-address: true
         lease-renewal-interval-in-seconds: 30
         lease-expiration-duration-in-seconds: 90
+
+
+# Configuration for Service G (Assessment Management Service)
+spring:
+  config:
+    activate:
+      on-profile: assessment-management-service
+
+  application:
+    name: assessment-management-service
+
+server:
+  port: 8085  # Service G listens on port 8085
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
 
 

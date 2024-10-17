@@ -4,6 +4,7 @@ import com.assessment_management.assessment_management_service.model.AssessmentA
 import com.assessment_management.assessment_management_service.model.CohortsIdsRequest;
 import com.assessment_management.assessment_management_service.model.TraineeIdsRequest;
 import com.assessment_management.assessment_management_service.service.AssessmentAssignService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/assignments")
+@RequestMapping("/assessments/assign")
 public class AssessmentAssignController {
 
     @Autowired
@@ -22,8 +23,9 @@ public class AssessmentAssignController {
     @PutMapping("/{assessmentId}")
     public ResponseEntity<?> assignAssessment(
             @PathVariable String assessmentId,
-            @RequestBody TraineeIdsRequest traineeIdsRequest) {
-        return assessmentAssignService.assignAssessment(assessmentId, traineeIdsRequest.getTraineeIds());
+            @RequestBody TraineeIdsRequest traineeIdsRequest,
+            HttpServletRequest request) {
+        return assessmentAssignService.assignAssessment(assessmentId, traineeIdsRequest.getTraineeIds(), request);
     }
 
     // Assign cohorts to an existing assignment
