@@ -62,21 +62,19 @@ eureka:
       lease-renewal-interval-in-seconds: 30
       lease-expiration-duration-in-seconds: 90
 
-
-
 ---
 
-# Configuration for Service F (Email Management Service)
+# Configuration for Service D (User Login Service)
 spring:
   config:
     activate:
-      on-profile: email-management-service
+      on-profile: user-authentication-service
 
   application:
-    name: email-management-service
+    name: user-login-service
 
 server:
-  port: 8086  # Service F listens on port 8086
+  port: 8084  # Service D listens on port 8084
 
 eureka:
   client:
@@ -111,4 +109,71 @@ eureka:
       lease-expiration-duration-in-seconds: 90
 
 ---
+
+# Configuration for Kafka Producer
+spring:
+  config:
+    activate:
+      on-profile: kafka-producer
+
+  application:
+    name: kafka-producer
+
+server:
+  port: 8094  # Kafka Producer listens on port 8094
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
+
+---
+
+# Configuration for Kafka Consumer
+spring:
+  config:
+    activate:
+      on-profile: kafka-consumer
+
+  application:
+    name: kafka-consumer
+
+server:
+  port: 8095  # Kafka Consumer listens on port 8095
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
+
+---
+# Configuration for Service E (Assessment Management Service)
+spring:
+  config:
+    activate:
+      on-profile: assessment-management-service
+
+  application:
+    name: assessment-management-service
+
+server:
+  port: 8085  # Service E listens on port 8085
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 30
+      lease-expiration-duration-in-seconds: 90
+
 

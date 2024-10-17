@@ -16,4 +16,6 @@ public class AttendanceDto {
     private AttendanceStatus status;
 
 
+    public AttendanceDto(Long id, String firstName, String lastName, LocalDate date, AttendanceStatus status) {
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/trainees/attendance")
@@ -50,11 +51,15 @@ public class AttendanceController {
         return ResponseEntity.ok(percentage);
     }
 
-    @GetMapping("/{traineeId}/report")
-    public ResponseEntity<List<Attendance>> getAttendanceReport(@PathVariable Long traineeId,
-                                                                @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        Trainee trainee = traineeService.getTraineeById(traineeId);
-        List<Attendance> report = attendanceService.getAttendanceInDateRange(trainee, startDate, endDate);
+    @GetMapping("/report")
+    public ResponseEntity<Map<String, List<AttendanceDto>>> getAttendanceReport(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+
+        // Fetch attendance data for all trainees in the given date range
+        Map<String, List<AttendanceDto>> report = attendanceService.getAttendanceInDateRange(startDate, endDate);
+
         return ResponseEntity.ok(report);
     }
+
 }

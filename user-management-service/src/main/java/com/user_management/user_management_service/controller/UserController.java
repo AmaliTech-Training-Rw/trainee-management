@@ -39,7 +39,6 @@ public class UserController {
 
     @PutMapping("/{id}/password")
     public ResponseEntity<String> setPassword(
-            @PathVariable int id,
             @RequestParam String token,
             @RequestParam String newPassword) {
         boolean isPasswordSet = userService.setPassword(token, newPassword);

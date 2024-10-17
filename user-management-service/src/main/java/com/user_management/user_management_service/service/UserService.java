@@ -57,22 +57,27 @@ public class UserService {
             User user = new User();
             user.setName(userInfo.getName());
             user.setEmail(userInfo.getEmail());
-            user.setPassword(passwordEncoder.encode(userInfo.getPassword())); // Correctly encode and set the password
+
+// Capture the plaintext password from user input before encoding it
+            String plainTextPassword = userInfo.getPassword(); // Get the raw password input
+            user.setPassword(passwordEncoder.encode(plainTextPassword)); // Correctly encode and set the password
             user.setRole(userInfo.getRole());
 
-            // Generate a reset token and set the expiration
+// Generate a reset token and set the expiration
             String resetToken = UUID.randomUUID().toString();
             user.setResetToken(resetToken);
             user.setTokenExpiration(LocalDateTime.now().plusHours(1)); // Token valid for 1 hour
 
-            // Save user to database
+// Save user to the database
             User savedUser = userRepository.save(user);
 
+// Prepare the JSON object to send in the email
             JSONObject messageJson = new JSONObject();
             messageJson.put("email", savedUser.getEmail());
             messageJson.put("name", savedUser.getName());
-            messageJson.put("password", savedUser.getPassword());
+            messageJson.put("password", plainTextPassword); // Send the plaintext password
             messageJson.put("token", resetToken);
+
 
             kafkaTemplate.send(userCreatedTopic, messageJson.toString());
 

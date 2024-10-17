@@ -1,7 +1,7 @@
 package com.user_management.user_management_service.config;
 
 import com.user_management.user_management_service.filter.JwtAuthenticationFilter;
-import com.user_management.user_management_service.util.errorHandler.ForbiddenErrorHandler;
+import com.user_management.user_management_service.utils.errorHandler.ForbiddenErrorHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,17 +38,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http
+                .cors().and()  // Enable CORS
+                .csrf().disable()
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/users/login/**","/users/login/oauth2/**","/users/request-password-reset","/users/change-password").permitAll() // Allow login
-                        .requestMatchers("/users/v3/api-docs", "/users/swagger-ui.html", "/webjars/**", "/users/OAuth2", "/users/{id}/password","/users/verify-otp").permitAll()
-                        .requestMatchers("/trainees/**", "/users/**").hasAnyRole("ADMIN", "TRAINER")
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all preflight requests
+                        .requestMatchers(HttpMethod.POST, "/users/login/**", "/users/request-password-reset", "/users/change-password").permitAll()
+                        .requestMatchers("/users/v3/api-docs", "/users/swagger-ui.html", "/webjars/**", "/users/OAuth2", "/users/{id}/password", "/users/verify-otp").permitAll()
+                        .requestMatchers("/trainees/**", "/users/**", "/assessments/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/trainees/**", "/assessments/**").hasAnyRole("ADMIN", "TRAINER")
                         .anyRequest().authenticated()
                 )
-                .oauth2Login() // Configure OAuth2 login
-                .defaultSuccessUrl("/users/login/oauth2/callback")
-                .failureUrl("/login?error=true")
-                .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

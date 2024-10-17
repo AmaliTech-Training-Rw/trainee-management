@@ -3,7 +3,6 @@ package com.trainee_management.trainee_management_service.controller;
 import com.trainee_management.trainee_management_service.dto.TrainerRequest;
 import com.trainee_management.trainee_management_service.model.Specialization;
 import com.trainee_management.trainee_management_service.model.Trainer;
-import com.trainee_management.trainee_management_service.service.CloudinaryService;
 import com.trainee_management.trainee_management_service.service.SpecializationService;
 import com.trainee_management.trainee_management_service.service.TrainerService;
 import com.trainee_management.trainee_management_service.utils.ResourceNotFoundException;
@@ -22,13 +21,13 @@ public class TrainerController {
 
     private final TrainerService trainerService;
     private final SpecializationService specializationService;
-    private final CloudinaryService cloudinaryService;
+
 
     @Autowired
-    public TrainerController(TrainerService trainerService, SpecializationService specializationService, CloudinaryService cloudinaryService) {
+    public TrainerController(TrainerService trainerService, SpecializationService specializationService) {
         this.trainerService = trainerService;
         this.specializationService = specializationService;
-        this.cloudinaryService = cloudinaryService;
+
     }
 
     // Create a new Trainer

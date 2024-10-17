@@ -1,4 +1,4 @@
-package com.user_management.user_management_service.util.errorHandler;
+package com.user_management.user_management_service.utils.errorHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
