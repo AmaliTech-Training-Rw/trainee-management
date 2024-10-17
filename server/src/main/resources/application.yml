@@ -108,7 +108,29 @@ eureka:
       lease-renewal-interval-in-seconds: 30
       lease-expiration-duration-in-seconds: 90
 
+
 ---
+  # Configuration for Service E (Assessment Management Service)
+  spring:
+    config:
+      activate:
+        on-profile: assessment-management-service
+
+    application:
+      name: assessment-management-service
+
+  server:
+    port: 8085  # Service E listens on port 8085
+
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
+      instance:
+        prefer-ip-address: true
+        lease-renewal-interval-in-seconds: 30
+        lease-expiration-duration-in-seconds: 90
+
 
 # Configuration for Service G (Assessment Management Service)
 spring:
